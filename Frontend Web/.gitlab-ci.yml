@@ -1,0 +1,34 @@
+# Simplified pipeline for code quality checks only
+
+stages:
+  - code_quality
+
+variables:
+  NODE_VERSION: "18"
+
+# Cache configuration for faster builds
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - node_modules/
+    - .pnpm-store/
+
+# Code quality checks (ESLint + Prettier)
+code_quality_check:
+  stage: code_quality
+  image: node:$NODE_VERSION
+  before_script:
+    - npm install -g pnpm
+    - pnpm config set store-dir .pnpm-store
+    - pnpm install --frozen-lockfile
+  script:
+    - echo "Running ESLint..."
+    - pnpm run lint
+    - echo "Running Prettier check..."
+    - pnpm run format:check
+    - echo "✅ Code quality checks passed!"
+  allow_failure: false
+  only:
+    - merge_requests
+    - develop
+    - main

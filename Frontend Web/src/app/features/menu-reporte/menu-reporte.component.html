@@ -1,0 +1,112 @@
+<div class="blob top-0 left-0"></div>
+<div
+  class="blob bottom-0 right-0"
+  style="
+    animation-delay: -10s;
+    background: radial-gradient(
+      circle,
+      rgba(30, 64, 175, 0.15) 0%,
+      rgba(30, 64, 175, 0) 70%
+    );
+  "
+></div>
+
+<div
+  class="relative-content flex flex-col items-center justify-center p-6 text-white selection:bg-[#E67E22] selection:text-white w-full min-h-screen"
+>
+  <header class="mb-12 text-center">
+    <h1 class="text-5xl md:text-6xl font-bold glass-title tracking-tight mb-4">
+      Gestionar Reportes
+    </h1>
+    <div
+      class="w-24 h-1 bg-[#E67E22] mx-auto rounded-full shadow-[0_0_15px_rgba(230,126,34,0.5)]"
+    ></div>
+  </header>
+
+  <main class="w-full max-w-5xl">
+    <div class="bento-grid">
+      <div
+        #cardEntradas
+        class="glass-card col-span-12 md:col-span-7 p-8 flex flex-col justify-between group cursor-pointer"
+        [routerLink]="['/reportes/entradas']"
+        tabindex="0"
+        role="button"
+        (keyup.enter)="cardEntradas.click()"
+        aria-label="Reportes de entrada"
+      >
+        <div>
+          <div
+            class="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
+          >
+            <span class="material-icons-round text-blue-400 text-3xl"
+              >local_shipping</span
+            >
+          </div>
+          <h2 class="text-2xl font-bold mb-2 text-white">
+            Reportes de Entrada
+          </h2>
+          <p class="text-slate-300/80 leading-relaxed font-light">
+            Seguimiento detallado de mercancias recibidas y validacion de stock
+            inicial.
+          </p>
+        </div>
+        <div
+          class="mt-6 flex items-center text-[#E67E22] font-semibold text-sm"
+        >
+          Ver detalles
+          <span class="material-icons-round ml-1 text-sm">arrow_forward</span>
+        </div>
+      </div>
+
+      <div
+        #cardSalidas
+        class="glass-card col-span-12 md:col-span-5 p-8 flex flex-col justify-between group cursor-pointer"
+        [routerLink]="['/reportes/salidas']"
+        tabindex="0"
+        role="button"
+        (keyup.enter)="cardSalidas.click()"
+        aria-label="Reportes de salida"
+      >
+        <div>
+          <div
+            class="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
+          >
+            <span class="material-icons-round text-orange-400 text-3xl"
+              >logout</span
+            >
+          </div>
+          <h2 class="text-2xl font-bold mb-2 text-white">Reportes de Salida</h2>
+          <p class="text-slate-300/80 leading-relaxed font-light">
+            Control de despachos y salidas de almacen programadas.
+          </p>
+        </div>
+        <div
+          class="mt-6 flex items-center text-[#E67E22] font-semibold text-sm"
+        >
+          Explorar
+          <span class="material-icons-round ml-1 text-sm">arrow_forward</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="fixed bottom-8 right-8 flex gap-4 z-50 items-center">
+    <button
+      class="glass-card w-14 h-14 rounded-full flex items-center justify-center hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+      [routerLink]="['/menu']"
+      aria-label="Ir al menu principal"
+    >
+      <span class="material-icons-round text-white text-2xl">home</span>
+    </button>
+  </nav>
+
+  <div class="fixed top-8 right-8 z-50">
+    <button
+      class="glass-card px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 cursor-pointer text-white"
+      (click)="toggleDarkMode()"
+      aria-label="Alternar modo oscuro"
+    >
+      <span class="material-icons-round text-sm">dark_mode</span>
+    </button>
+  </div>
+</div>

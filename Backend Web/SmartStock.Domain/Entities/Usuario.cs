@@ -1,0 +1,15 @@
+namespace SmartStock.Domain.Entities;
+
+public class Usuario
+{
+    public int UsuarioId { get; set; }
+    public int RolId { get; set; }
+    public string Nombre { get; set; } = string.Empty;
+    public int Cedula { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string PasswordHash { get; set; } = string.Empty;
+    public bool Estado { get; set; } = true;
+    public string? Telefono { get; set; }
+
+    public virtual Rol? Rol { get; set; }
+}

@@ -1,0 +1,86 @@
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Visual Studio / .NET ===
+.vs/
+*.suo
+*.user
+*.userosscache
+*.rsuser
+*.sln.docstates
+*.opendb
+
+# === Build outputs ===
+bin/
+obj/
+out/
+artifacts/
+Debug/
+Release/
+[Ll]og/
+*.log
+
+# === IDEs ===
+# Rider / ReSharper
+.idea/
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# VS Code
+.vscode/
+
+# === NuGet ===
+.nuget/
+packages/
+!**/packages/build/
+!**/packages/repositories.config
+*.nupkg
+*.snupkg
+
+# === Tests & Coverage ===
+TestResult*/
+TestResults/
+*.VisualState.xml
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# === Source control bindings ===
+$tf/
+*.vssscc
+*.vspscc
+
+# === Misc ===
+*.cache
+*.dbmdl
+*.bak
+*.swp
+*.tmp
+*.temp
+*.pidb
+*.psess
+*.vsp
+*.pdb
+*.dmp
+*.orig
+*.rej
+
+# === Publish outputs ===
+publish/
+wwwroot/dist/
+wwwroot/lib/
+
+# === Scaffolding ===
+ScaffoldingReadMe.txt
+
+# === Azure Functions local settings ===
+local.settings.json
+
+# === User-specific MSBuild ===
+Directory.Build.props.user
+Directory.Build.targets.user
+*.csproj.user

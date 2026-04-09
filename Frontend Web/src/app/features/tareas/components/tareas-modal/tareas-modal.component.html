@@ -1,0 +1,388 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay bg-slate-900/75 backdrop-blur-sm transition-opacity"
+  *ngIf="!showCloseConfirm"
+  (click)="onBackdropClick($event)"
+  (keyup.enter)="onBackdropClick($event)"
+  (keydown.escape)="onCancel()"
+  tabindex="0"
+  role="button"
+>
+  <div
+    class="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-[fadeIn_0.2s_ease-out]"
+  >
+    <!-- Header -->
+    <div
+      class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800"
+    >
+      <h2 class="text-xl font-bold text-slate-800 dark:text-white">
+        {{ title }}
+      </h2>
+      <button
+        type="button"
+        class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+        (click)="onCancel()"
+      >
+        <span class="material-icons-round text-xl">close</span>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 overflow-y-auto custom-scrollbar">
+      <div
+        *ngIf="error"
+        class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-3 text-red-600 dark:text-red-400"
+      >
+        <span class="material-icons-round">error_outline</span>
+        <span class="text-sm font-medium">{{ error }}</span>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+          *ngIf="mode !== 'view'"
+        >
+          <!-- Título -->
+          <div class="space-y-2">
+            <label
+              for="titulo"
+              class="block text-sm font-medium text-slate-700 dark:text-slate-200"
+            >
+              Título <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="titulo"
+              type="text"
+              formControlName="titulo"
+              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+              placeholder="Título de la tarea"
+              [class.border-red-500]="getFieldError('titulo')"
+            />
+            <span
+              class="text-xs text-red-500 font-medium"
+              *ngIf="getFieldError('titulo')"
+            >
+              {{ getFieldError('titulo') }}
+            </span>
+          </div>
+
+          <!-- Asignado A -->
+          <div class="space-y-2 relative">
+            <label
+              for="asignadoA"
+              class="block text-sm font-medium text-slate-700 dark:text-slate-200"
+            >
+              Asignado A
+            </label>
+            <div class="relative">
+              <button
+                id="usuario-dropdown"
+                type="button"
+                class="w-full flex items-center justify-between px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-left text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-slate-900 dark:text-slate-100"
+                (click)="toggleUsuarioDropdown()"
+              >
+                <span [class.text-slate-400]="!form.get('asignadoA')?.value">
+                  {{ getSelectedUsuarioText() }}
+                </span>
+                <span
+                  class="material-icons-round text-slate-400 transition-transform duration-200"
+                  [class.rotate-180]="showUsuarioDropdown"
+                  >expand_more</span
+                >
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div
+                *ngIf="showUsuarioDropdown"
+                class="absolute top-full left-0 right-0 mt-1 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-fade-in-down"
+              >
+                <div class="p-2 border-b border-slate-100 dark:border-slate-700">
+                  <div class="relative">
+                    <span
+                      class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-round text-slate-400 text-lg"
+                      >search</span
+                    >
+                    <input
+                      type="text"
+                      [(ngModel)]="usuarioSearchTerm"
+                      [ngModelOptions]="{ standalone: true }"
+                      (input)="filterUsuarios()"
+                      placeholder="Buscar por nombre, correo o cédula..."
+                      class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+                     
+                    />
+                  </div>
+                </div>
+
+                <div class="max-h-60 overflow-y-auto custom-scrollbar">
+                  <div
+                    *ngIf="usuarioLoading"
+                    class="p-4 text-center text-slate-500"
+                  >
+                    <div
+                      class="inline-block w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"
+                    ></div>
+                    Cargando usuarios...
+                  </div>
+
+                  <div
+                    *ngIf="!usuarioLoading && filteredUsuarios.length === 0"
+                    class="p-4 text-center text-slate-500 text-sm"
+                  >
+                    No se encontraron usuarios
+                  </div>
+
+                  <button
+                    *ngFor="let u of filteredUsuarios"
+                    type="button"
+                    class="w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center justify-between group transition-colors"
+                    [ngClass]="{
+                      'bg-primary-50': form.get('asignadoA')?.value === u.usuario_id,
+                      'dark:bg-primary-900/20': form.get('asignadoA')?.value === u.usuario_id
+                    }"
+                    (click)="onSelectUsuario(u)"
+                  >
+                    <div class="flex flex-col">
+                      <span
+                        class="font-medium text-slate-900 dark:text-white group-hover:text-primary transition-colors"
+                        >{{ u.nombre }}</span
+                      >
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-500 dark:text-slate-300"
+                          >{{ u.correo }}</span
+                        >
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-100 font-mono"
+                          >ID: {{ u.usuario_id }}</span
+                        >
+                      </div>
+                    </div>
+                    <span
+                      *ngIf="form.get('asignadoA')?.value === u.usuario_id"
+                      class="material-icons-round text-primary text-lg"
+                      >check</span
+                    >
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="space-y-2" *ngIf="mode !== 'view'">
+          <label
+            for="descripcion"
+            class="block text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
+            Descripción
+          </label>
+          <textarea
+            id="descripcion"
+            formControlName="descripcion"
+            rows="4"
+            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 resize-none"
+            placeholder="Descripción detallada de la tarea..."
+            [class.border-red-500]="getFieldError('descripcion')"
+          ></textarea>
+          <span
+            class="text-xs text-red-500 font-medium"
+            *ngIf="getFieldError('descripcion')"
+          >
+            {{ getFieldError('descripcion') }}
+          </span>
+        </div>
+
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+          *ngIf="mode !== 'view'"
+        >
+          <!-- Fecha Fin -->
+          <div class="space-y-2">
+            <label
+              for="fechaFin"
+              class="block text-sm font-medium text-slate-700 dark:text-slate-200"
+            >
+              Fecha Fin
+            </label>
+            <input
+              id="fechaFin"
+              type="date"
+              formControlName="fechaFin"
+              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all text-slate-900 dark:text-slate-100"
+            />
+          </div>
+
+          <!-- Estado (solo en edición) -->
+          <div class="space-y-2" *ngIf="mode === 'edit'">
+            <label
+              for="estado"
+              class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2"
+            >
+              Estado
+            </label>
+            <label class="inline-flex items-center cursor-pointer">
+              <input
+                id="estado"
+                type="checkbox"
+                formControlName="estado"
+                class="sr-only peer"
+              />
+              <div
+                class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+              ></div>
+              <span
+                class="ml-3 text-sm font-medium text-slate-700 dark:text-slate-200"
+              >
+                {{ form.get('estado')?.value ? 'Activa' : 'Inactiva' }}
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Solo lectura -->
+        <div class="space-y-6" *ngIf="mode === 'view' && tarea">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-1">
+              <span
+                class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                >Título</span
+              >
+              <p class="text-slate-900 dark:text-slate-100 font-medium">
+                {{ tarea.titulo }}
+              </p>
+            </div>
+            <div class="space-y-1">
+              <span
+                class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                >Asignado A</span
+              >
+              <p class="text-slate-900 dark:text-slate-100 font-medium">
+                {{ tarea.asignadoA || '-' }}
+              </p>
+            </div>
+            <div class="col-span-2 space-y-1">
+              <span
+                class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                >Descripción</span
+              >
+              <p class="text-slate-600 dark:text-slate-300">
+                {{ tarea.descripcion || '-' }}
+              </p>
+            </div>
+            <div class="space-y-1">
+              <span
+                class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                >Fecha Creación</span
+              >
+              <p class="text-slate-900 dark:text-slate-100 font-medium">
+                {{ tarea.fechaCreacion | date: 'dd/MM/yyyy' }}
+              </p>
+            </div>
+            <div class="space-y-1">
+              <span
+                class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                >Fecha Fin</span
+              >
+              <p class="text-slate-900 dark:text-slate-100 font-medium">
+                {{
+                  tarea.fechaFin ? (tarea.fechaFin | date: 'dd/MM/yyyy') : '-'
+                }}
+              </p>
+            </div>
+            <div class="space-y-1">
+              <span
+                class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                >Estado</span
+              >
+              <span
+                [class]="
+                  tarea.estado
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                "
+                class="inline-block px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide"
+              >
+                {{ tarea.estado ? 'Activa' : 'Inactiva' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 rounded-b-2xl"
+    >
+      <button
+        *ngIf="mode === 'view'"
+        type="button"
+        class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+        (click)="onCancel()"
+      >
+        Cerrar
+      </button>
+      <button
+        *ngIf="mode !== 'view'"
+        type="button"
+        class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+        (click)="onCancel()"
+        [disabled]="loading"
+      >
+        Cancelar
+      </button>
+      <button
+        *ngIf="mode !== 'view' && canSubmitByPermission()"
+        type="submit"
+        class="px-6 py-2 text-sm font-medium text-white bg-primary hover:bg-blue-700 rounded-lg shadow-lg shadow-primary/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+        [disabled]="loading || form.invalid"
+        (click)="onSubmit()"
+      >
+        <span
+          *ngIf="loading"
+          class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+        ></span>
+        {{ loading ? 'Procesando...' : submitButtonText }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación de cierre -->
+<div
+  class="fixed inset-0 z-[60] flex items-center justify-center p-4 modal-overlay bg-slate-900/75 backdrop-blur-sm"
+  *ngIf="showCloseConfirm"
+  (click)="onBackdropClick($event)"
+  tabindex="0"
+>
+  <div
+    class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-200 dark:border-slate-800 animate-[fadeIn_0.2s_ease-out]"
+  >
+    <div class="text-center mb-6">
+      <span class="material-icons-round text-5xl text-orange-500 mb-4"
+        >warning_amber</span
+      >
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">
+        ¿Descartar cambios?
+      </h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Tiene cambios sin guardar. ¿Está seguro de que desea cerrar sin guardar?
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <button
+        type="button"
+        class="flex-1 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+        (click)="cancelClose()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="flex-1 px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-lg shadow-orange-500/30"
+        (click)="confirmClose()"
+      >
+        Descartar
+      </button>
+    </div>
+  </div>
+</div>

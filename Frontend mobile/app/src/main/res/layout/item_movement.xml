@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_card"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView android:id="@+id/tvMovementType" android:layout_width="match_parent" android:layout_height="wrap_content" android:textStyle="bold" android:textSize="17sp" android:textColor="@color/text_primary" />
+    <TextView android:id="@+id/tvMovementQty" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_secondary" />
+    <TextView android:id="@+id/tvMovementUser" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_secondary" />
+    <TextView android:id="@+id/tvMovementProduct" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_secondary" />
+    <TextView android:id="@+id/tvMovementDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_secondary" />
+</LinearLayout>

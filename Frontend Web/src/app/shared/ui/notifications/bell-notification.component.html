@@ -1,0 +1,57 @@
+<div class="bell-wrap">
+  <div
+    class="bell"
+    (click)="toggle()"
+    tabindex="0"
+    (keydown.enter)="toggle()"
+    (keydown.space)="toggle()"
+  >
+    <span class="material-icons-round bell-icon">notifications</span>
+    <span class="badge" *ngIf="count > 0">{{ count }}</span>
+  </div>
+  <div class="panel" *ngIf="open">
+    <div class="panel-header">
+      <span>Alertas de stock</span>
+      <button
+        type="button"
+        class="refresh"
+        (click)="refresh()"
+        [disabled]="loading"
+      >
+        Actualizar
+      </button>
+    </div>
+    <ul class="list">
+      <li
+        *ngFor="let it of items"
+        (click)="canManageReorden ? openReorder(it) : null"
+        class="list-item"
+        [class.cursor-pointer]="canManageReorden"
+        tabindex="0"
+        (keydown.enter)="canManageReorden ? openReorder(it) : null"
+        (keydown.space)="canManageReorden ? openReorder(it) : null"
+      >
+        <span class="name">{{ it.producto?.nombre || 'Producto' }}</span>
+        <span class="meta"
+          >{{ it.cantidad }}/{{ it.puntoReorden }} · {{ it.ubicacion }}</span
+        >
+        <button
+          *ngIf="canManageReorden"
+          type="button"
+          class="order-btn"
+          (click)="onOrderClick($event, it)"
+        >
+          Reordenar
+        </button>
+      </li>
+      <li *ngIf="!loading && items.length === 0" class="empty">Sin alertas</li>
+    </ul>
+  </div>
+</div>
+<app-reorden-modal
+  *ngIf="showReordenModal && inventarioReorden"
+  [show]="showReordenModal"
+  [inventario]="inventarioReorden!"
+  (success)="onReordenSuccess($event)"
+  (modalClosed)="closeReordenModal()"
+></app-reorden-modal>

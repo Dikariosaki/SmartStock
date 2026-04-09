@@ -1,0 +1,539 @@
+<app-sidebar></app-sidebar>
+
+<!-- Main Content -->
+<main
+  class="ml-0 pb-[70px] md:ml-[90px] md:pb-0 flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300"
+>
+  <!-- Header -->
+  <header
+    class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 md:px-8 py-4 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:justify-between"
+  >
+    <div class="flex items-center gap-4 w-full md:flex-1 md:max-w-2xl">
+      <div class="relative w-full">
+        <span
+          class="material-icons-round absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          >search</span
+        >
+        <input
+          class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 text-sm transition-all outline-none text-slate-600 dark:text-slate-200 placeholder-slate-400"
+          placeholder="Buscar productos por nombre o código..."
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchEvent($event)"
+          (keypress)="onSearchKeyPress($event)"
+          aria-label="Buscar productos"
+        />
+      </div>
+
+      <!-- Filtro de Estado -->
+      <div class="relative">
+        <button
+          class="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-slate-600 dark:text-slate-300 shadow-sm relative group"
+          [class.text-primary]="selectedEstado !== 'all'"
+          [class.border-primary]="selectedEstado !== 'all'"
+          [class.ring-2]="selectedEstado !== 'all'"
+          [class.ring-primary-50]="selectedEstado !== 'all'"
+          (click)="toggleFilterMenu()"
+          title="Filtrar productos"
+        >
+          <span class="material-icons-round text-xl">filter_list</span>
+          
+          <!-- Indicador de filtro activo -->
+          <span
+            *ngIf="selectedEstado !== 'all'"
+            class="absolute top-2 right-2 flex h-2 w-2"
+          >
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+          </span>
+        </button>
+
+        <!-- Popup Menu -->
+        <div
+          *ngIf="showFilterMenu"
+          class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 z-20 overflow-hidden animate-[fadeInDown_0.2s_ease-out] origin-top-right"
+        >
+          <div class="p-3">
+            <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-100 dark:border-slate-700">
+              <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Filtrar por Estado
+              </span>
+              <span 
+                *ngIf="selectedEstado !== 'all'"
+                class="text-[10px] text-primary font-medium cursor-pointer hover:underline"
+                (click)="selectEstado('all'); $event.stopPropagation()"
+              >
+                Limpiar
+              </span>
+            </div>
+            
+            <div class="space-y-1">
+              <button
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                [ngClass]="{
+                  'bg-slate-50 text-slate-900 dark:text-white dark:bg-slate-700': selectedEstado === 'all',
+                  'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50': selectedEstado !== 'all'
+                }"
+                (click)="selectEstado('all')"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="material-icons-round text-lg text-slate-400">format_list_bulleted</span>
+                  <span>Todos</span>
+                </div>
+                <span *ngIf="selectedEstado === 'all'" class="material-icons-round text-primary text-lg">check</span>
+              </button>
+
+              <button
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                [ngClass]="{
+                  'bg-emerald-50 text-emerald-700 dark:text-emerald-400 dark:bg-emerald-900/20': selectedEstado === 'active',
+                  'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50': selectedEstado !== 'active'
+                }"
+                (click)="selectEstado('active')"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="material-icons-round text-lg" [class.text-emerald-500]="selectedEstado === 'active'" [class.text-slate-400]="selectedEstado !== 'active'">check_circle</span>
+                  <span>Activos</span>
+                </div>
+                <span *ngIf="selectedEstado === 'active'" class="material-icons-round text-emerald-500 text-lg">check</span>
+              </button>
+
+              <button
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                [ngClass]="{
+                  'bg-red-50 text-red-700 dark:text-red-400 dark:bg-red-900/20': selectedEstado === 'inactive',
+                  'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50': selectedEstado !== 'inactive'
+                }"
+                (click)="selectEstado('inactive')"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="material-icons-round text-lg" [class.text-red-500]="selectedEstado === 'inactive'" [class.text-slate-400]="selectedEstado !== 'inactive'">cancel</span>
+                  <span>Inactivos</span>
+                </div>
+                <span *ngIf="selectedEstado === 'inactive'" class="material-icons-round text-red-500 text-lg">check</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backdrop invisible para cerrar el menú -->
+      <div
+        *ngIf="showFilterMenu"
+        class="fixed inset-0 z-10"
+        (click)="showFilterMenu = false"
+      ></div>
+    </div>
+    <div
+      class="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto"
+    >
+      <button
+        *ngIf="canCreateProducto"
+        class="flex flex-1 md:flex-none justify-center items-center gap-2 bg-primary hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-primary/20"
+        (click)="crearProducto()"
+      >
+        <span class="material-icons-round text-lg">add</span>
+        Nuevo Producto
+      </button>
+      <div
+        class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2 hidden md:block"
+      ></div>
+
+      <div class="flex items-center gap-2">
+        <button
+          class="p-2 text-slate-400 hover:text-primary transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
+          (click)="toggleDarkMode()"
+          aria-label="Alternar modo oscuro"
+        >
+          <span class="material-icons-round dark:hidden">dark_mode</span>
+          <span class="material-icons-round hidden dark:block">light_mode</span>
+        </button>
+
+        <div class="relative">
+          <app-bell-notification
+            feature="inventarios"
+          ></app-bell-notification>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="p-8 flex flex-col flex-1">
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+        Productos
+      </h1>
+      <p class="text-slate-500 dark:text-slate-400 text-sm">
+        Gestione el catálogo de productos, precios y detalles.
+      </p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <button
+        *ngIf="canStockEntrada"
+        class="flex items-center justify-center gap-2 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow-md transition-all text-slate-700 dark:text-slate-300 hover:text-primary dark:hover:text-primary-400 disabled:opacity-50 disabled:cursor-not-allowed"
+        (click)="abrirModalStock('entrada')"
+        [disabled]="!selectedRowProducto"
+      >
+        <span class="material-icons-round text-green-500">arrow_downward</span>
+        <span class="font-medium">Entrada Stock</span>
+      </button>
+      <button
+        *ngIf="canStockSalida"
+        class="flex items-center justify-center gap-2 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow-md transition-all text-slate-700 dark:text-slate-300 hover:text-primary dark:hover:text-primary-400 disabled:opacity-50 disabled:cursor-not-allowed"
+        (click)="abrirModalStock('salida')"
+        [disabled]="!selectedRowProducto"
+      >
+        <span class="material-icons-round text-red-500">arrow_upward</span>
+        <span class="font-medium">Salida Stock</span>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div
+      *ngIf="loading"
+      class="flex flex-col items-center justify-center py-20 text-slate-400 animate-pulse"
+    >
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"
+      ></div>
+      <p class="text-lg font-medium">Cargando productos...</p>
+    </div>
+
+    <!-- Grid Layout -->
+    <div
+      *ngIf="!loading && productos.length > 0"
+      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+    >
+      <!-- Product Card -->
+      <div
+        *ngFor="let p of productos; trackBy: trackById"
+        (click)="seleccionarFila(p)"
+        (keyup.enter)="seleccionarFila(p)"
+        tabindex="0"
+        role="button"
+        [class.ring-2]="selectedRowProducto?.productoId === p.productoId"
+        [class.ring-primary]="selectedRowProducto?.productoId === p.productoId"
+        class="relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+      >
+        <!-- Selection Indicator -->
+        <div
+          *ngIf="selectedRowProducto?.productoId === p.productoId"
+          class="absolute top-4 right-4 text-primary animate-bounce"
+        >
+          <span class="material-icons-round">check_circle</span>
+        </div>
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-4 min-w-0">
+            <div
+              class="w-12 h-12 shrink-0 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500 dark:text-indigo-400"
+            >
+              <span class="material-icons-round text-xl">category</span>
+            </div>
+            <div class="min-w-0">
+              <h3
+                class="font-bold text-slate-900 dark:text-white leading-tight truncate"
+                title="{{ p.nombre }}"
+              >
+                {{ p.nombre }}
+              </h3>
+              <span
+                class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider"
+              >
+                COD: {{ p.codigo }}
+              </span>
+            </div>
+          </div>
+
+          <div class="shrink-0 ml-2">
+            <span
+              [class]="
+                p.estado
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+              "
+              class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide"
+            >
+              {{ p.estado ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Card Content -->
+        <div
+          class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-700/50"
+        >
+          <!-- Price Info -->
+          <div
+            class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700/50"
+          >
+            <span
+              class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide"
+              >Precio Unitario</span
+            >
+            <span class="text-lg font-bold text-primary dark:text-primary-400">
+              {{ p.precioUnitario | currency: 'USD' : 'symbol' : '1.0-0' }}
+            </span>
+          </div>
+
+          <!-- Description -->
+          <div
+            class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 min-h-[2.5em]"
+          >
+            {{ p.descripcion || 'Sin descripción disponible.' }}
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div
+          *ngIf="
+            canReportAveria ||
+            canEditProducto ||
+            canDeactivateProducto ||
+            canActivateProducto ||
+            canDeleteProducto
+          "
+          class="flex justify-end gap-1 mt-4 pt-2 border-t border-slate-100 dark:border-slate-700/50 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <button
+            *ngIf="p.estado && canReportAveria"
+            class="p-1.5 text-slate-400 hover:text-amber-600 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
+            (click)="abrirAveria(p)"
+            title="Reportar Avería"
+            aria-label="Reportar avería"
+          >
+            <span class="material-icons-round text-xl">report_problem</span>
+          </button>
+
+          <button
+            *ngIf="canEditProducto"
+            class="p-1.5 text-slate-400 hover:text-blue-500 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
+            (click)="editar(p)"
+            title="Editar"
+            aria-label="Editar producto"
+          >
+            <span class="material-icons-round text-xl">edit</span>
+          </button>
+
+          <button
+            *ngIf="p.estado && canDeactivateProducto"
+            class="p-1.5 text-slate-400 hover:text-orange-500 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
+            (click)="darDeBaja(p)"
+            title="Dar de baja"
+            aria-label="Dar de baja producto"
+          >
+            <span class="material-icons-round text-xl">block</span>
+          </button>
+
+          <button
+            *ngIf="!p.estado && canActivateProducto"
+            class="p-1.5 text-slate-400 hover:text-green-500 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
+            (click)="activarProducto(p)"
+            title="Activar"
+            aria-label="Activar producto"
+          >
+            <span class="material-icons-round text-xl">check_circle</span>
+          </button>
+
+          <button
+            *ngIf="canDeleteProducto"
+            class="p-1.5 text-slate-400 hover:text-red-500 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
+            (click)="eliminar(p)"
+            title="Eliminar"
+          >
+            <span class="material-icons-round text-xl">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <footer
+      *ngIf="!loading && paginacion.total > 0"
+      class="mt-8 px-8 py-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4"
+    >
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Mostrando {{ (paginacion.page - 1) * paginacion.limit + 1 }} -
+        {{ Math.min(paginacion.page * paginacion.limit, paginacion.total) }} de
+        {{ paginacion.total }} productos
+      </p>
+
+      <div class="flex gap-2">
+        <button
+          class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="paginacion.page <= 1"
+          (click)="previousPage()"
+          aria-label="Página anterior"
+        >
+          <span class="material-icons-round">chevron_left</span>
+        </button>
+
+        <div class="hidden sm:flex gap-1">
+          <button
+            *ngFor="let page of getPageNumbers()"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            [class]="
+              page === paginacion.page
+                ? 'bg-primary text-white'
+                : 'border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+            "
+            (click)="changePage(page)"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button
+          class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="paginacion.page >= totalPages"
+          (click)="nextPage()"
+          aria-label="Página siguiente"
+        >
+          <span class="material-icons-round">chevron_right</span>
+        </button>
+      </div>
+    </footer>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="!loading && productos.length === 0"
+      class="flex flex-col items-center justify-center py-20 text-slate-400"
+    >
+      <div
+        class="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6"
+      >
+        <span
+          class="material-icons-round text-4xl text-slate-300 dark:text-slate-600"
+          >inventory_2</span
+        >
+      </div>
+      <h3 class="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">
+        No hay productos
+      </h3>
+      <p class="max-w-md text-center mb-8">
+        No se encontraron productos que coincidan con tu búsqueda.
+      </p>
+      <button
+        *ngIf="canCreateProducto"
+        (click)="crearProducto()"
+        class="text-primary hover:underline font-medium"
+      >
+        Agregar nuevo producto
+      </button>
+    </div>
+
+
+  </div>
+</main>
+
+<!-- MODALES -->
+<app-productos-modal
+  *ngIf="showModal"
+  [show]="showModal"
+  [mode]="modalMode"
+  [producto]="selectedProducto"
+  (productoSaved)="onModalSuccess()"
+  (modalClosed)="closeModal()"
+></app-productos-modal>
+
+<app-averia-modal
+  *ngIf="showAveriaModal"
+  [show]="showAveriaModal"
+  [producto]="productoParaAveria"
+  (confirmAveria)="procesarAveria($event)"
+  (cancelAveria)="showAveriaModal = false"
+></app-averia-modal>
+
+<app-stock-modal
+  *ngIf="showStockModal"
+  [show]="showStockModal"
+  [mode]="stockMode"
+  [producto]="selectedRowProducto"
+  (stockConfirm)="procesarStock($event)"
+  (stockCancel)="showStockModal = false"
+></app-stock-modal>
+
+<!-- Confirmar Eliminación -->
+<div
+  class="fixed inset-0 z-[60] flex items-center justify-center p-4 modal-overlay bg-slate-900/75 backdrop-blur-sm"
+  *ngIf="showDeleteConfirm"
+>
+  <div
+    class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-200 dark:border-slate-800 animate-[fadeIn_0.2s_ease-out]"
+  >
+    <div class="text-center mb-6">
+      <span class="material-icons-round text-5xl text-red-500 mb-4"
+        >delete_outline</span
+      >
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">
+        Eliminar Producto
+      </h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        ¿Está seguro de eliminar el producto
+        <span class="font-bold text-slate-700 dark:text-slate-300">{{
+          productoAEliminar?.nombre
+        }}</span
+        >? Esta acción no se puede deshacer.
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <button
+        type="button"
+        class="flex-1 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+        (click)="cancelarEliminacion()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors shadow-lg shadow-red-500/30"
+        (click)="confirmarEliminacion()"
+      >
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmar Baja -->
+<div
+  class="fixed inset-0 z-[60] flex items-center justify-center p-4 modal-overlay bg-slate-900/75 backdrop-blur-sm"
+  *ngIf="showDeactivateConfirm"
+>
+  <div
+    class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-200 dark:border-slate-800 animate-[fadeIn_0.2s_ease-out]"
+  >
+    <div class="text-center mb-6">
+      <span class="material-icons-round text-5xl text-orange-500 mb-4"
+        >block</span
+      >
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">
+        Dar de Baja
+      </h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        ¿Está seguro de desactivar el producto
+        <span class="font-bold text-slate-700 dark:text-slate-300">{{
+          productoADarDeBaja?.nombre
+        }}</span
+        >? No estará disponible para operaciones.
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <button
+        type="button"
+        class="flex-1 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+        (click)="cancelarDarDeBaja()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="flex-1 px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-lg shadow-orange-500/30"
+        (click)="confirmarDarDeBaja()"
+      >
+        Desactivar
+      </button>
+    </div>
+  </div>
+</div>

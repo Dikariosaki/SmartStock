@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_card"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView android:id="@+id/tvInventoryProduct" android:layout_width="match_parent" android:layout_height="wrap_content" android:textStyle="bold" android:textSize="17sp" android:textColor="@color/text_primary" />
+    <TextView android:id="@+id/tvInventoryLocation" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_secondary" />
+    <TextView android:id="@+id/tvInventoryQty" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_secondary" />
+    <TextView android:id="@+id/tvInventoryReorder" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_secondary" />
+    <TextView android:id="@+id/tvInventoryStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textStyle="bold" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal">
+        <Button android:id="@+id/btnEditInventory" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:layout_marginEnd="6dp" android:text="Editar" android:textAllCaps="false" />
+        <Button android:id="@+id/btnToggleInventory" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:textAllCaps="false" />
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="horizontal">
+        <Button android:id="@+id/btnEntry" android:layout_width="0dp" android:layout_height="38dp" android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Entrada" android:textAllCaps="false" />
+        <Button android:id="@+id/btnExit" android:layout_width="0dp" android:layout_height="38dp" android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Salida" android:textAllCaps="false" />
+        <Button android:id="@+id/btnDamage" android:layout_width="0dp" android:layout_height="38dp" android:layout_weight="1" android:text="Averia" android:textAllCaps="false" />
+    </LinearLayout>
+</LinearLayout>

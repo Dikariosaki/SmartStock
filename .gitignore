@@ -1,0 +1,116 @@
+# =====================
+# SmartStock Monorepo - Global Ignore
+# =====================
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+
+# IDE metadata
+.idea/
+.vscode/
+.vs/
+*.iml
+*.ipr
+*.iws
+*.suo
+*.user
+*.userosscache
+*.rsuser
+*.sln.docstates
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment/config (machine specific)
+.env
+.env.*
+**/local.properties
+
+# Build outputs / caches
+**/build/
+**/target/
+**/bin/
+**/obj/
+**/.gradle/
+**/.kotlin/
+**/.gradle-local/
+.gradle-cache/
+**/.cxx/
+**/.externalNativeBuild/
+**/captures/
+**/dist/
+**/coverage/
+**/.cache/
+**/.parcel-cache/
+**/.turbo/
+**/.next/
+**/.nuxt/
+**/.angular/cache/
+**/node_modules/
+
+# Android artifacts
+*.apk
+*.aab
+*.ap_
+
+# JVM / Spring tooling
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath
+.springBeans
+.sts4-cache/
+
+# .NET / NuGet
+.nuget/
+packages/
+*.nupkg
+*.snupkg
+*.opendb
+*.dbmdl
+*.pidb
+*.psess
+*.vsp
+*.pdb
+*.dmp
+
+# Test / coverage reports
+**/TestResult*/
+**/TestResults/
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# Publish artifacts
+artifacts/
+publish/
+
+# Keep wrappers and launcher scripts in repo
+!**/gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.properties
+!**/.mvn/wrapper/maven-wrapper.jar
+!**/.mvn/wrapper/maven-wrapper.properties
+!**/gradlew
+!**/gradlew.bat
+!**/mvnw
+!**/mvnw.cmd
+
+# Keep example config files
+!.env.example
+!**/local.properties.example

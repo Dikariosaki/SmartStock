@@ -1,0 +1,164 @@
+<div
+  class="h-full font-display bg-pattern selection:bg-orange-600/30 flex items-center justify-center p-4 min-h-screen"
+>
+  <button
+    class="fixed top-6 right-6 p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all duration-300 z-50"
+    (click)="toggleDarkMode()"
+    aria-label="Alternar modo oscuro"
+  >
+    <span class="material-icons-round block dark:hidden">dark_mode</span>
+    <span class="material-icons-round hidden dark:block">light_mode</span>
+  </button>
+
+  <main class="w-full max-w-md animate-[fadeIn_0.7s_ease-out]">
+    <div
+      class="glass-card rounded-3xl p-8 md:p-12 shadow-2xl overflow-hidden relative"
+    >
+      <!-- Mensajes de Estado -->
+      <div
+        *ngIf="errorMessage"
+        class="mb-6 p-4 rounded-xl bg-red-50/90 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-300 text-sm font-medium backdrop-blur-sm animate-shake flex items-center gap-3 shadow-sm"
+      >
+        <div
+          class="p-2 bg-red-100 dark:bg-red-900/50 rounded-full shrink-0 text-red-600 dark:text-red-400"
+        >
+          <span class="material-icons-round text-xl block">error_outline</span>
+        </div>
+        <div class="flex-1">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <div
+        *ngIf="successMessage"
+        class="mb-6 p-4 rounded-xl bg-green-50/90 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm font-medium backdrop-blur-sm animate-fadeIn flex items-center gap-3 shadow-sm"
+      >
+        <div
+          class="p-2 bg-green-100 dark:bg-green-900/50 rounded-full shrink-0 text-green-600 dark:text-green-400"
+        >
+          <span class="material-icons-round text-xl block">check_circle</span>
+        </div>
+        <div class="flex-1">
+          {{ successMessage }}
+        </div>
+      </div>
+
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center justify-center mb-4">
+          <span
+            class="text-2xl font-bold tracking-tighter text-slate-900 dark:text-white border-b-2 border-orange-600 pb-1"
+            >SmartStock</span
+          >
+        </div>
+        <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">
+          Inicio de sesión
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm">
+          Gestiona tu inventario con inteligencia
+        </p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="space-y-6">
+        <div class="relative">
+          <label class="sr-only" for="email">Correo</label>
+          <div
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
+            <span class="material-icons-round text-slate-400 text-lg"
+              >mail</span
+            >
+          </div>
+          <input
+            class="input-glow block w-full pl-10 pr-3 py-4 border-slate-200 dark:border-slate-700 rounded-xl bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900/50 focus:border-blue-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            id="email"
+            name="email"
+            placeholder="Correo"
+            required
+            type="email"
+            [(ngModel)]="email"
+            [disabled]="isLoading"
+          />
+        </div>
+
+        <div class="relative">
+          <label class="sr-only" for="password">Contraseña</label>
+          <div
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
+            <span class="material-icons-round text-slate-400 text-lg"
+              >lock</span
+            >
+          </div>
+          <input
+            class="input-glow block w-full pl-10 pr-3 py-4 border-slate-200 dark:border-slate-700 rounded-xl bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900/50 focus:border-blue-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            id="password"
+            name="password"
+            placeholder="Contraseña"
+            required
+            type="password"
+            [(ngModel)]="password"
+            [disabled]="isLoading"
+          />
+        </div>
+
+        <button
+          class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-blue-900/20 transform transition-all duration-300 active:scale-95 hover:-translate-y-0.5 flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+          type="submit"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="!isLoading">Iniciar Sesión</span>
+          <span *ngIf="isLoading" class="flex items-center gap-2">
+            <svg
+              class="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            Iniciando...
+          </span>
+          <span *ngIf="!isLoading" class="material-icons-round text-lg"
+            >login</span
+          >
+        </button>
+      </form>
+
+      <div
+        class="mt-8 pt-6 border-t border-slate-200/30 dark:border-slate-700/30 text-center"
+      >
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          ¿No tienes una cuenta?
+          <a
+            class="text-blue-900 dark:text-orange-600 font-semibold hover:underline"
+            href="#"
+            >Solicitar acceso</a
+          >
+        </p>
+      </div>
+
+      <div
+        class="absolute -top-10 -right-10 w-24 h-24 bg-orange-600/20 blur-2xl rounded-full pointer-events-none"
+      ></div>
+      <div
+        class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-900/20 blur-3xl rounded-full pointer-events-none"
+      ></div>
+    </div>
+
+    <p class="text-center mt-8 text-white/50 text-xs tracking-widest uppercase">
+      © {{ currentYear }} SmartStock.
+    </p>
+  </main>
+</div>

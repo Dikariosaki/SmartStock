@@ -1,0 +1,149 @@
+<div
+  *ngIf="show"
+  class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-opacity"
+  (click)="onCancel()"
+  (keyup.enter)="onCancel()"
+  tabindex="0"
+  role="button"
+>
+  <!-- Modal Content -->
+  <div
+    class="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-[modalSlideIn_0.3s_ease-out]"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div
+      class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400"
+        >
+          <span class="material-icons-round text-xl">report_problem</span>
+        </div>
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white">
+          Reportar Avería / Faltante
+        </h2>
+      </div>
+      <button
+        class="p-2 text-slate-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
+        (click)="onCancel()"
+      >
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 space-y-5">
+      <!-- Producto Info -->
+      <div
+        *ngIf="producto"
+        class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700"
+      >
+        <div class="flex items-center gap-3 mb-1">
+          <span class="material-icons-round text-slate-400 text-sm"
+            >inventory_2</span
+          >
+          <span
+            class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+            >Producto Afectado</span
+          >
+        </div>
+        <div class="text-slate-800 dark:text-white font-medium pl-8">
+          {{ producto.nombre }}
+          <span class="text-slate-400 text-sm ml-1"
+            >(ID: {{ producto.productoId }})</span
+          >
+        </div>
+      </div>
+
+      <!-- Origen del reporte -->
+      <div class="space-y-1.5">
+        <label
+          for="tipoReporte"
+          class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
+          Origen del reporte <span class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+          <span
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-icons-round text-[20px]"
+            >category</span
+          >
+          <select
+            id="tipoReporte"
+            [(ngModel)]="tipoReporte"
+            class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-700 dark:text-slate-200 transition-all appearance-none"
+          >
+            <option value="Entrada">Entrada (Llegó dañado/incompleto)</option>
+            <option value="Salida">Salida (Se dañó/perdió al salir)</option>
+            <option value="Inventario">Avería en Bodega</option>
+          </select>
+          <span
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 material-icons-round pointer-events-none"
+            >expand_more</span
+          >
+        </div>
+      </div>
+
+      <!-- Cantidad -->
+      <div class="space-y-1.5">
+        <label
+          for="cantidad"
+          class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
+          Cantidad Afectada <span class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+          <span
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-icons-round text-[20px]"
+            >numbers</span
+          >
+          <input
+            id="cantidad"
+            type="number"
+            [(ngModel)]="cantidad"
+            min="1"
+            class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-700 dark:text-slate-200 transition-all placeholder:text-slate-400"
+          />
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="space-y-1.5">
+        <label
+          for="descripcion"
+          class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
+          Descripción del problema <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          id="descripcion"
+          [(ngModel)]="descripcion"
+          rows="3"
+          class="w-full p-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-700 dark:text-slate-200 transition-all placeholder:text-slate-400 resize-none"
+          placeholder="Describa el daño o la razón del faltante..."
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3"
+    >
+      <button
+        (click)="onCancel()"
+        class="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-all"
+      >
+        Cancelar
+      </button>
+      <button
+        (click)="onConfirm()"
+        class="px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-lg shadow-red-600/20 transition-all flex items-center gap-2"
+      >
+        <span class="material-icons-round text-lg">warning</span>
+        Registrar Reporte
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,8 @@
+/* 
+  Estilos migrados a Tailwind CSS en el template HTML.
+  Las utilidades de scrollbar ahora están en styles.css
+*/
+
+:host {
+  display: block;
+}

@@ -1,0 +1,7 @@
+/* 
+  Estilos migrados a Tailwind CSS en el template HTML.
+  Se mantienen configuraciones básicas del host si son necesarias.
+*/
+:host {
+  display: block;
+}

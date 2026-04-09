@@ -1,0 +1,137 @@
+<aside
+  class="fixed z-50 bg-slate-900 shadow-2xl transition-all duration-300 bottom-4 left-4 right-4 h-[70px] rounded-2xl flex flex-row items-center justify-between px-2 border border-slate-800/50 md:top-0 md:left-0 md:h-screen md:w-[90px] md:bottom-auto md:right-auto md:rounded-none md:flex-col md:items-center md:py-6 md:gap-6 md:justify-start md:px-0 md:border-t-0 md:border-none"
+>
+  <!-- Home Logo (Desktop) -->
+  <div
+    class="hidden md:block p-3 bg-primary rounded-xl text-white cursor-pointer hover:bg-blue-600 transition-all shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 shrink-0"
+    (click)="onHomeClick()"
+    (keyup.enter)="onHomeClick()"
+    tabindex="0"
+    role="button"
+    aria-label="Ir al inicio"
+  >
+    <span class="material-icons-round text-3xl">home</span>
+  </div>
+
+  <!-- Mobile Home Item (Fixed Left) -->
+  <a
+    class="md:hidden group relative p-2 ml-1 rounded-xl transition-all cursor-pointer flex justify-center items-center outline-none focus:ring-2 focus:ring-primary/50 text-slate-400 hover:text-white hover:bg-slate-800 shrink-0"
+    (click)="onHomeClick()"
+    (keyup.enter)="onHomeClick()"
+    tabindex="0"
+    role="button"
+    aria-label="Ir al inicio"
+  >
+    <span class="material-icons-round text-2xl">home</span>
+  </a>
+
+  <!-- Navigation -->
+  <nav
+    class="flex-1 flex w-full overflow-hidden flex-row gap-8 overflow-x-auto items-center px-4 scrollbar-hide md:flex-col md:overflow-y-auto md:overflow-x-hidden md:px-3 md:py-2 md:gap-3"
+  >
+    <a
+      *ngFor="let item of sidebarItems"
+      (click)="onNavigate(item.route)"
+      (keydown.enter)="onNavigate(item.route)"
+      tabindex="0"
+      role="button"
+      class="group relative p-2 md:p-3 rounded-xl transition-all cursor-pointer flex justify-center items-center outline-none focus:ring-2 focus:ring-primary/50 shrink-0"
+      [class]="
+        isActiveRoute(item.route)
+          ? 'bg-slate-800 text-white shadow-md shadow-black/20'
+          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+      "
+      [title]="item.title"
+    >
+      <!-- Icon Container -->
+      <div class="relative flex items-center justify-center w-6 h-6">
+        <span
+          class="material-icons-round text-2xl transition-all duration-300"
+          [class]="
+            isActiveRoute(item.route)
+              ? 'text-white'
+              : 'text-slate-400 group-hover:text-white opacity-70 group-hover:opacity-100'
+          "
+        >
+          {{ item.icon }}
+        </span>
+      </div>
+
+      <!-- Tooltip (Desktop Only) -->
+      <span
+        class="hidden md:block invisible opacity-0 absolute left-full ml-4 px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-lg whitespace-nowrap transition-all duration-200 z-50 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:translate-x-1 shadow-xl border border-slate-700/50"
+      >
+        {{ item.title }}
+        <!-- Arrow -->
+        <span
+          class="absolute top-1/2 right-full -mt-1 -mr-1 border-4 border-transparent border-r-slate-800"
+        ></span>
+      </span>
+
+      <!-- Active Indicator (Left Border - Desktop) -->
+      <span
+        *ngIf="isActiveRoute(item.route)"
+        class="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full"
+      ></span>
+
+      <!-- Active Indicator (Bottom Border/Dot - Mobile) -->
+      <span
+        *ngIf="isActiveRoute(item.route)"
+        class="md:hidden absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full mb-1"
+      ></span>
+    </a>
+
+    <!-- Mobile Profile Item (Scrolls with items) -->
+    <a
+      class="md:hidden group relative p-2 rounded-xl transition-all cursor-pointer flex justify-center items-center outline-none focus:ring-2 focus:ring-primary/50 text-slate-400 hover:text-white hover:bg-slate-800 shrink-0"
+      (click)="onProfileClick()"
+      (keyup.enter)="onProfileClick()"
+      tabindex="0"
+      role="button"
+      aria-label="Perfil"
+    >
+      <span class="material-icons-round text-2xl">account_circle</span>
+    </a>
+  </nav>
+
+  <!-- Bottom Actions -->
+  <div
+    class="hidden md:flex items-center gap-2 shrink-0 flex-col w-full px-3 pb-2 mt-auto"
+  >
+    <!-- Divider (Desktop) -->
+    <div class="hidden md:block w-8 h-[1px] bg-slate-800 mb-2"></div>
+
+    <!-- Dark Mode Toggle -->
+    <button
+      class="hidden md:block p-3 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-xl transition-all outline-none focus:ring-2 focus:ring-amber-400/50"
+      (click)="toggleDarkMode()"
+      title="Cambiar tema"
+      aria-label="Alternar modo oscuro"
+    >
+      <span
+        class="material-icons-round text-2xl dark:hidden transition-transform hover:rotate-12"
+        >dark_mode</span
+      >
+      <span
+        class="material-icons-round text-2xl hidden dark:block transition-transform hover:rotate-90"
+        >light_mode</span
+      >
+    </button>
+
+    <!-- Profile -->
+    <a
+      class="hidden md:block p-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all cursor-pointer outline-none focus:ring-2 focus:ring-primary/50"
+      (click)="onProfileClick()"
+      title="Perfil"
+    >
+      <span class="material-icons-round text-2xl">account_circle</span>
+    </a>
+  </div>
+</aside>
+
+<app-profile-modal
+  *ngIf="showProfileModal"
+  [userProfile]="userProfile"
+  (close)="onProfileModalClose()"
+  (profileUpdate)="onProfileUpdate($event)"
+></app-profile-modal>

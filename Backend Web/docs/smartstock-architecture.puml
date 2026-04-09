@@ -1,0 +1,37 @@
+@startuml
+' SmartStock - Arquitectura de Soluciones
+skinparam componentStyle rectangle
+
+actor "Cliente/Swagger UI" as CLIENT
+rectangle "SmartStock.API" as API
+rectangle "SmartStock.Application" as APP
+rectangle "SmartStock.Infrastructure" as INF
+rectangle "SmartStock.Domain" as DOMAIN
+database "MySQL (proyect_smartstock)" as DB
+
+CLIENT --> API : HTTP (REST)
+API --> APP : Usa interfaces (IUnitOfWork, IRepository<T>, IUsuarioRepository...)
+API --> INF : DI de implementaciones concretas
+APP --> DOMAIN : Entidades y contratos
+INF --> DOMAIN : Entidades / DbContext
+INF --> DB : EF Core (Pomelo)
+
+note right of DOMAIN
+  - Define entidades principales:
+    Usuario, Rol, Cliente, Proveedor,
+    Categoria, Subcategoria, Producto,
+    Inventario, Movimiento, Tarea,
+    OrdenReabastecimiento, Reporte
+  - Sin dependencias externas.
+end note
+
+note bottom of INF
+  - SmartStockDbContext (EF Core)
+  - UnitOfWork (Manejo de transacciones)
+  - Repositorios Genéricos y Específicos:
+    UsuarioRepository, ProductoRepository,
+    MovimientoRepository, TareaRepository,
+    ReporteRepository, etc.
+end note
+
+@enduml

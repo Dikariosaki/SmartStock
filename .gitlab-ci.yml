@@ -1,0 +1,127 @@
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+
+# --- Backend Web (.NET) ---
+backend_web_test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - cd "Backend Web"
+    - dotnet restore
+    - dotnet test
+  only:
+    changes:
+      - "Backend Web/**/*"
+    refs:
+      - develop
+      - main
+
+backend_web_build_image:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd "Backend Web"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE/backend-web:$CI_COMMIT_SHA .
+    - docker push $CI_REGISTRY_IMAGE/backend-web:$CI_COMMIT_SHA
+    - |
+      if [ "$CI_COMMIT_BRANCH" == "main" ]; then
+        docker tag $CI_REGISTRY_IMAGE/backend-web:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE/backend-web:latest
+        docker push $CI_REGISTRY_IMAGE/backend-web:latest
+      fi
+  only:
+    changes:
+      - "Backend Web/**/*"
+    refs:
+      - develop
+      - main
+
+# --- Backend Mobile (Kotlin/Spring Boot) ---
+backend_mobile_test:
+  stage: test
+  image: eclipse-temurin:17-jdk-jammy
+  script:
+    - cd "Backend mobile"
+    - ./mvnw test
+  only:
+    changes:
+      - "Backend mobile/**/*"
+    refs:
+      - develop
+      - main
+
+backend_mobile_build_image:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd "Backend mobile"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE/backend-mobile:$CI_COMMIT_SHA .
+    - docker push $CI_REGISTRY_IMAGE/backend-mobile:$CI_COMMIT_SHA
+    - |
+      if [ "$CI_COMMIT_BRANCH" == "main" ]; then
+        docker tag $CI_REGISTRY_IMAGE/backend-mobile:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE/backend-mobile:latest
+        docker push $CI_REGISTRY_IMAGE/backend-mobile:latest
+      fi
+  only:
+    changes:
+      - "Backend mobile/**/*"
+    refs:
+      - develop
+      - main
+
+# --- Frontend Mobile (Android) ---
+frontend_mobile_test:
+  stage: test
+  image: eclipse-temurin:17-jdk-jammy
+  before_script:
+    - export ANDROID_SDK_ROOT=/opt/android-sdk
+  script:
+    - cd "Frontend mobile"
+    - chmod +x gradlew
+    # - ./gradlew test # Descomentar cuando el proyecto Android esté listo
+    - echo "Running Android tests..."
+  only:
+    changes:
+      - "Frontend mobile/**/*"
+    refs:
+      - develop
+      - main
+
+# --- Frontend Web ---
+frontend_web_test:
+  stage: test
+  image: node:18
+  script:
+    - cd "Frontend Web"
+    - npm install
+    - npm test -- --watch=false --browsers=ChromeHeadless
+  only:
+    changes:
+      - "Frontend Web/**/*"
+    refs:
+      - develop
+      - main
+
+# --- Deploy (Solo Main) ---
+deploy_production:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - echo "Deploying to production server..."
+    # Aquí irían los comandos SSH o kubectl para desplegar
+    # Ejemplo: ssh user@server "docker-compose pull && docker-compose up -d"
+  only:
+    refs:
+      - main

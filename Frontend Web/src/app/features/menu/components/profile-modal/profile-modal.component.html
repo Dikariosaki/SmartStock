@@ -1,0 +1,73 @@
+<div
+  class="modal-overlay active"
+  (click)="onOverlayClick($event)"
+  (keyup.enter)="onOverlayClick($event)"
+  (keydown)="onKeyDown($event)"
+  tabindex="0"
+  role="button"
+>
+  <div class="modal-content">
+    <div class="modal-icon">
+      <img
+        src="/assets/svg/UserMenu.svg"
+        alt="Icono de Perfil Grande"
+        draggable="false"
+      />
+    </div>
+    <h3 class="modal-title">perfil</h3>
+    
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <form class="profile-form" (ngSubmit)="onSubmit()" #profileForm="ngForm">
+      <input
+        type="text"
+        placeholder="Nombre"
+        [(ngModel)]="formData.name"
+        name="name"
+        required
+        [disabled]="isSubmitting"
+      />
+      <input
+        type="text"
+        placeholder="Identificación"
+        [(ngModel)]="formData.identification"
+        name="identification"
+        required
+        [disabled]="isSubmitting"
+      />
+      <input
+        type="email"
+        placeholder="Correo"
+        [(ngModel)]="formData.email"
+        name="email"
+        required
+        [disabled]="isSubmitting"
+      />
+      <input
+        type="tel"
+        placeholder="Teléfono"
+        [(ngModel)]="formData.phone"
+        name="phone"
+        required
+        [disabled]="isSubmitting"
+      />
+      <div class="modal-buttons">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!profileForm.valid || isSubmitting"
+        >
+          {{ isSubmitting ? 'Guardando...' : 'Aceptar' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="isSubmitting">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-logout" (click)="onLogout()" [disabled]="isSubmitting">
+          Cerrar sesión
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

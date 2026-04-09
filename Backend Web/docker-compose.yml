@@ -1,0 +1,42 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: smartstock-mysql
+    ports:
+      - "4000:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: proyect_smartstock
+    volumes:
+      - ./docker/mysql:/docker-entrypoint-initdb.d
+    command: ["--default-authentication-plugin=mysql_native_password"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  mysql-seed:
+    image: mysql:8.0
+    container_name: smartstock-seed
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - ./docker/mysql:/docker-entrypoint-initdb.d:ro
+    entrypoint:
+      - sh
+      - -c
+      - >
+        echo "Iniciando reset completo de la base de datos...";
+        echo "Ejecutando 01-init.sql (Drop & Create)...";
+        mysql -hmysql -uroot -p$$MYSQL_ROOT_PASSWORD < /docker-entrypoint-initdb.d/01-init.sql;
+        echo "Ejecutando 02-datos.sql (Seeding)...";
+        mysql -hmysql -uroot -p$$MYSQL_ROOT_PASSWORD < /docker-entrypoint-initdb.d/02-datos.sql;
+        echo "Base de datos restaurada y datos inyectados correctamente.";
+    restart: "no"
+    

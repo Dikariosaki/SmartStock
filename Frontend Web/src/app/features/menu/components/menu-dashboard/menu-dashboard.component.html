@@ -1,0 +1,87 @@
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo-section">
+      <div class="logo-box">
+        <span class="material-icons-round text-white">inventory_2</span>
+      </div>
+      <h1 class="app-title">SmartStock</h1>
+    </div>
+    <div class="nav-actions">
+      <button
+        class="theme-toggle"
+        (click)="toggleDarkMode()"
+        aria-label="Alternar modo oscuro"
+      >
+        <span class="material-icons-round">dark_mode</span>
+      </button>
+      <div class="divider"></div>
+      <button
+        class="profile-btn"
+        (click)="onProfileIconClick()"
+        aria-label="Perfil de usuario"
+      >
+        <div class="avatar-circle">
+          <span class="material-icons-round">person</span>
+        </div>
+        <span class="profile-text">Admin Panel</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <header class="dashboard-header">
+    <h2 class="subtitle">Dashboard Principal</h2>
+    <h3 class="title">MENÚ</h3>
+  </header>
+
+  <div *ngIf="menuItems.length > 0; else emptyState" class="dashboard-grid">
+    <a
+      *ngFor="let item of menuItems"
+      class="glass-card"
+      (click)="onMenuItemClick(item)"
+      (keydown.enter)="onMenuItemClick(item)"
+      [attr.data-route]="item.route"
+      tabindex="0"
+      role="button"
+      [attr.aria-label]="item.title + ' ' + item.description"
+    >
+      <div class="icon-wrapper">
+        <span class="material-icons-round card-icon">{{ item.icon }}</span>
+      </div>
+      <span class="card-title">{{ item.title }} {{ item.description }}</span>
+      <span class="material-icons-round hover-icon">open_in_new</span>
+    </a>
+  </div>
+
+  <ng-template #emptyState>
+    <section class="glass-card">
+      <div class="icon-wrapper">
+        <span class="material-icons-round card-icon">lock</span>
+      </div>
+      <span class="card-title">No hay vistas habilitadas para tu rol.</span>
+    </section>
+  </ng-template>
+</main>
+
+<footer class="footer">
+  <div class="footer-content">
+    <p class="copyright">© {{ currentYear }} SmartStock Management System.</p>
+    <div class="footer-links">
+      <a class="footer-link" href="#">Ayuda</a>
+      <a class="footer-link" href="#">Privacidad</a>
+      <a class="footer-link" href="#">Configuración</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Profile Modal -->
+<app-profile-modal
+  *ngIf="showProfileModal"
+  [userProfile]="userProfile"
+  (close)="onProfileModalClose()"
+  (profileUpdate)="onProfileUpdate($event)"
+></app-profile-modal>

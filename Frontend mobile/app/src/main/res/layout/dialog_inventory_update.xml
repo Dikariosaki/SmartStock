@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+        <EditText android:id="@+id/etLocation" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Ubicacion" />
+        <EditText android:id="@+id/etReorderPoint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:hint="Punto de reorden" android:inputType="number" />
+    </LinearLayout>
+</ScrollView>

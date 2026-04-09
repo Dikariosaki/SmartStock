@@ -1,0 +1,296 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay bg-slate-900/75 backdrop-blur-sm"
+  *ngIf="show && !showConfirmation && !showSuccess"
+  (click)="onBackdropClick($event)"
+  (keyup.enter)="onBackdropClick($event)"
+  (keydown.escape)="confirmarCierre()"
+  tabindex="0"
+  role="button"
+>
+  <!-- Modal Content -->
+  <div
+    class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all duration-300 transform scale-100 flex flex-col max-h-[90vh] mx-4"
+  >
+    <!-- Header -->
+    <div
+      class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900"
+    >
+      <div>
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-blue-400">
+          {{ getModalTitle() }}
+        </h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          {{
+            mode === 'view'
+              ? 'Detalles de la subcategoría registrada.'
+              : 'Complete la información de la subcategoría.'
+          }}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors"
+        (click)="confirmarCierre()"
+      >
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+
+    <div
+      *ngIf="error"
+      class="px-8 py-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm"
+    >
+      {{ error }}
+    </div>
+
+    <!-- Form -->
+    <form
+      [formGroup]="subcategoriaForm"
+      (ngSubmit)="guardarSubcategoria()"
+      class="p-8 overflow-y-auto"
+    >
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Nombre -->
+        <div class="space-y-2" *ngIf="mode !== 'view'">
+          <label
+            for="nombre"
+            class="flex items-center text-sm font-semibold text-slate-700 dark:text-slate-300"
+          >
+            <span class="material-icons-round text-lg mr-2 text-slate-400"
+              >label</span
+            >
+            Nombre de la Subcategoría
+            <span class="text-red-500 ml-1">*</span>
+          </label>
+          <input
+            id="nombre"
+            formControlName="nombre"
+            type="text"
+            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-primary transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            [class.border-red-500]="hasFieldError('nombre')"
+            placeholder="Ej. Tablets"
+          />
+          <p *ngIf="hasFieldError('nombre')" class="text-xs text-red-500 mt-1">
+            {{ getFieldError('nombre') }}
+          </p>
+        </div>
+
+        <!-- Categoría (Select) -->
+        <div class="space-y-2" *ngIf="mode !== 'view'">
+          <label
+            for="categoriaId"
+            class="flex items-center text-sm font-semibold text-slate-700 dark:text-slate-300"
+          >
+            <span class="material-icons-round text-lg mr-2 text-slate-400"
+              >folder</span
+            >
+            Categoría
+            <span class="text-red-500 ml-1">*</span>
+          </label>
+          <select
+            id="categoriaId"
+            formControlName="categoriaId"
+            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-primary transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            [class.border-red-500]="hasFieldError('categoriaId')"
+          >
+            <option [ngValue]="null">Seleccionar categoría</option>
+            <option *ngFor="let cat of categorias" [ngValue]="cat.categoriaId">
+              {{ cat.nombre }}
+            </option>
+          </select>
+          <p
+            *ngIf="hasFieldError('categoriaId')"
+            class="text-xs text-red-500 mt-1"
+          >
+            {{ getFieldError('categoriaId') }}
+          </p>
+        </div>
+
+        <!-- Vista solo lectura -->
+        <div class="space-y-4" *ngIf="mode === 'view' && subcategoria">
+          <div
+            class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 space-y-3"
+          >
+            <div
+              class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0"
+            >
+              <span
+                class="text-sm font-medium text-slate-500 dark:text-slate-400"
+                >ID</span
+              >
+              <span
+                class="text-sm font-semibold text-slate-900 dark:text-white"
+                >{{ subcategoria.subcategoriaId }}</span
+              >
+            </div>
+            <div
+              class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0"
+            >
+              <span
+                class="text-sm font-medium text-slate-500 dark:text-slate-400"
+                >Nombre</span
+              >
+              <span
+                class="text-sm font-semibold text-slate-900 dark:text-white"
+                >{{ subcategoria.nombre }}</span
+              >
+            </div>
+            <div
+              class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0"
+            >
+              <span
+                class="text-sm font-medium text-slate-500 dark:text-slate-400"
+                >Categoría ID</span
+              >
+              <span
+                class="text-sm font-semibold text-slate-900 dark:text-white"
+                >{{ subcategoria.categoriaId }}</span
+              >
+            </div>
+            <div
+              class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0"
+            >
+              <span
+                class="text-sm font-medium text-slate-500 dark:text-slate-400"
+                >Estado</span
+              >
+              <span
+                [class]="
+                  subcategoria.estado
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                "
+                class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide"
+              >
+                {{ subcategoria.estado ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- Footer -->
+    <div
+      class="px-8 py-6 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3"
+    >
+      <button
+        *ngIf="mode === 'view'"
+        type="button"
+        class="px-5 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-medium transition-colors"
+        (click)="cerrarModal()"
+      >
+        Cerrar
+      </button>
+      <button
+        *ngIf="mode !== 'view'"
+        type="button"
+        class="px-5 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-medium transition-colors"
+        (click)="confirmarCierre()"
+      >
+        Cancelar
+      </button>
+      <button
+        *ngIf="mode !== 'view' && canSubmitByPermission()"
+        type="submit"
+        class="px-5 py-2.5 bg-primary hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg shadow-primary/20 flex items-center gap-2"
+        [disabled]="loading || !canSave()"
+        (click)="guardarSubcategoria()"
+      >
+        <span
+          *ngIf="loading"
+          class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+        ></span>
+        {{ getButtonText() }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmación de cancelar cambios -->
+<div
+  class="fixed inset-0 z-[60] flex items-center justify-center p-4 modal-overlay bg-slate-900/75 backdrop-blur-sm transition-opacity"
+  *ngIf="show && showConfirmation"
+  (click)="onBackdropClick($event)"
+  (keydown.escape)="cancelarConfirmacion()"
+  tabindex="0"
+>
+  <div
+    class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full mx-4 overflow-hidden animate-[fadeIn_0.2s_ease-out]"
+  >
+    <div
+      class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700"
+    >
+      <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+        {{ getConfirmationTitle() }}
+      </h2>
+      <button
+        type="button"
+        class="text-slate-400 hover:text-slate-500 transition-colors rounded-full p-1 hover:bg-slate-100 dark:hover:bg-slate-700"
+        (click)="cancelarConfirmacion()"
+      >
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+    <div class="p-6 flex flex-col items-center text-center">
+      <div
+        class="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mb-4"
+      >
+        <span class="material-icons-round text-3xl">warning</span>
+      </div>
+      <p class="text-slate-600 dark:text-slate-300 text-lg">
+        {{ confirmationMessage }}
+      </p>
+    </div>
+    <div class="p-4 bg-slate-50 dark:bg-slate-900/50 flex justify-center gap-3">
+      <button
+        type="button"
+        class="px-5 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-medium transition-colors"
+        (click)="cancelarConfirmacion()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="px-5 py-2.5 bg-primary hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg shadow-primary/20"
+        (click)="confirmarAccion()"
+      >
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Mensaje de Éxito -->
+<div
+  class="fixed inset-0 z-[60] flex items-center justify-center p-4 modal-overlay bg-slate-900/75 backdrop-blur-sm"
+  *ngIf="show && showSuccess"
+  (click)="onBackdropClick($event)"
+  (keydown.escape)="cerrarModal()"
+  tabindex="0"
+>
+  <div
+    class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full mx-4 overflow-hidden"
+  >
+    <div class="p-6 flex flex-col items-center text-center">
+      <div
+        class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4"
+      >
+        <span class="material-icons-round text-3xl">check</span>
+      </div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">
+        {{ getSuccessTitle() }}
+      </h2>
+      <p class="text-slate-600 dark:text-slate-300">{{ successMessage }}</p>
+    </div>
+    <div class="p-4 bg-slate-50 dark:bg-slate-900/50 flex justify-center">
+      <button
+        type="button"
+        class="px-8 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors shadow-lg shadow-green-500/20"
+        (click)="cerrarModal()"
+      >
+        Aceptar
+      </button>
+    </div>
+  </div>
+</div>

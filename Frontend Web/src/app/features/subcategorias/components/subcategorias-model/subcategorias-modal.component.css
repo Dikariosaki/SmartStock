@@ -1,0 +1,4 @@
+/* Estilos mínimos para el modal, la mayoría se maneja con Tailwind */
+.modal-overlay {
+  /* Estas propiedades se mantienen para compatibilidad con la lógica de cierre */
+}

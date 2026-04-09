@@ -1,0 +1,72 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+:host-context(.dark) .glass-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bg-pattern {
+  background-color: #0f172a;
+  background-image:
+    radial-gradient(at 0% 0%, #1e3a8a 0, transparent 50%),
+    radial-gradient(at 100% 100%, #ea580c 0, transparent 50%),
+    radial-gradient(at 100% 0%, #1e40af 0, transparent 40%);
+}
+
+.input-glow:focus {
+  box-shadow: 0 0 15px rgba(30, 58, 138, 0.3);
+}
+
+:host-context(.dark) .input-glow:focus {
+  box-shadow: 0 0 15px rgba(234, 88, 12, 0.2);
+}
+
+/* Animations */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}

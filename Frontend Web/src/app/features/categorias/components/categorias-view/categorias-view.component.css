@@ -1,0 +1,15 @@
+/* 
+  Estilos migrados a Tailwind CSS en el template HTML.
+  Se mantienen configuraciones básicas del host.
+*/
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f8fafc; /* match bg-slate-50 */
+}
+
+/* Dark mode support if host context changes */
+:host-context(.dark) {
+  background-color: #0f172a; /* match bg-slate-900 */
+}

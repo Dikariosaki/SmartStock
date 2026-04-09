@@ -1,0 +1,162 @@
+services:
+  # Base de Datos MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: smartstock-mysql
+    ports:
+      - "4000:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: proyect_smartstock
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./Backend Web/docker/mysql:/docker-entrypoint-initdb.d
+    command: ["--default-authentication-plugin=mysql_native_password", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - smartstock-network
+
+  # CDN / Object Storage local para evidencias
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: smartstock-rustfs
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - RUSTFS_ADDRESS=:9000
+      - RUSTFS_ACCESS_KEY=rustfsadmin
+      - RUSTFS_SECRET_KEY=rustfsadmin
+      - RUSTFS_CONSOLE_ENABLE=true
+    command: ["/data"]
+    volumes:
+      - rustfs_data:/data
+    restart: unless-stopped
+    networks:
+      - smartstock-network
+
+  rustfs-init:
+    image: minio/mc:latest
+    container_name: smartstock-rustfs-init
+    depends_on:
+      rustfs:
+        condition: service_started
+    entrypoint:
+      - sh
+      - -c
+      - >
+        until mc alias set rustfs http://rustfs:9000 rustfsadmin rustfsadmin; do
+          echo "Esperando a RustFS...";
+          sleep 2;
+        done;
+        mc mb --ignore-existing rustfs/reportes-evidencia;
+        mc anonymous set download rustfs/reportes-evidencia;
+    restart: "no"
+    networks:
+      - smartstock-network
+
+  # Servicio de Seeding (Carga de datos iniciales)
+  seed:
+    image: mysql:8.0
+    container_name: smartstock-seed
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - ./Backend Web/docker/mysql:/docker-entrypoint-initdb.d:ro
+    entrypoint:
+      - sh
+      - -c
+      - >
+        echo "Iniciando reset completo de la base de datos...";
+        sleep 5;
+        echo "Ejecutando 01-init.sql (Drop & Create)...";
+        mysql -hmysql -uroot -p$$MYSQL_ROOT_PASSWORD --default-character-set=utf8mb4 < /docker-entrypoint-initdb.d/01-init.sql;
+        echo "Ejecutando 02-datos.sql (Seeding)...";
+        mysql -hmysql -uroot -p$$MYSQL_ROOT_PASSWORD --default-character-set=utf8mb4 < /docker-entrypoint-initdb.d/02-datos.sql;
+        echo "Base de datos restaurada y datos inyectados correctamente.";
+    restart: "no"
+    networks:
+      - smartstock-network
+
+  # Backend .NET API (Web)
+  backend:
+    build:
+      context: ./Backend Web
+      dockerfile: Dockerfile
+    container_name: smartstock-api
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=proyect_smartstock;User=root;Password=secret;CharSet=utf8mb4;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - Storage__Bucket=reportes-evidencia
+      - Storage__PublicBaseUrl=http://rustfs:9000
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    networks:
+      - smartstock-network
+
+  # Backend Mobile (Kotlin/Spring Boot)
+  backend-mobile:
+    build:
+      context: ./Backend mobile
+      dockerfile: Dockerfile
+    container_name: smartstock-mobile-api
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rustfs:
+        condition: service_started
+      rustfs-init:
+        condition: service_completed_successfully
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/proyect_smartstock?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - APP_STORAGE_ENDPOINT=http://rustfs:9000
+      - APP_STORAGE_REGION=us-east-1
+      - APP_STORAGE_ACCESS_KEY=rustfsadmin
+      - APP_STORAGE_SECRET_KEY=rustfsadmin
+      - APP_STORAGE_BUCKET=reportes-evidencia
+      - APP_STORAGE_PUBLIC_BASE_URL=http://localhost:9000
+      - APP_STORAGE_AUTO_CREATE_BUCKET=true
+      - APP_STORAGE_PATH_STYLE_ACCESS_ENABLED=true
+    ports:
+      - "8081:8080"
+    restart: on-failure
+    networks:
+      - smartstock-network
+
+  # Frontend Angular (Nginx)
+  frontend:
+    build:
+      context: ./Frontend Web
+      dockerfile: Dockerfile
+    container_name: smartstock-web
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - smartstock-network
+
+volumes:
+  mysql_data:
+  rustfs_data:
+
+networks:
+  smartstock-network:
+    driver: bridge

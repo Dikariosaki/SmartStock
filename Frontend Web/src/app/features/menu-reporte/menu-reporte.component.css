@@ -1,0 +1,106 @@
+/* Estilos específicos del componente menu-reporte basados en Glassmorphism */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:host {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  display: block;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  /* Momentum scrolling for iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Fondo por defecto (light mode) */
+  background: linear-gradient(135deg, #1e293b 0%, #334155 25%, #7c2d12 100%);
+}
+
+/* Custom Scrollbar */
+:host::-webkit-scrollbar {
+  width: 8px;
+}
+
+:host::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:host::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+:host::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Soporte para modo oscuro mediante la clase .dark en un contenedor superior o :host-context */
+:host-context(.dark) {
+  background: linear-gradient(135deg, #020617 0%, #0f172a 35%, #431407 100%);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-8px) scale(1.01);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-title {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.4) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(180px, auto);
+  gap: 1.5rem;
+}
+
+.blob {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(
+    circle,
+    rgba(230, 126, 34, 0.15) 0%,
+    rgba(230, 126, 34, 0) 70%
+  );
+  filter: blur(60px);
+  z-index: 0;
+  pointer-events: none;
+  animation: move 20s infinite alternate;
+  will-change: transform; /* Optimización de rendimiento */
+}
+
+@keyframes move {
+  from {
+    transform: translate(-10%, -10%);
+  }
+  to {
+    transform: translate(20%, 20%);
+  }
+}
+
+/* Asegurar que el contenido esté por encima de los blobs */
+.relative-content {
+  position: relative;
+  z-index: 10;
+}

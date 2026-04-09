@@ -1,0 +1,380 @@
+<!-- Main Modal -->
+<div
+  class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 transition-opacity duration-300"
+  *ngIf="show && !showConfirmation && !showSuccess"
+>
+  <!-- Backdrop -->
+  <div
+    class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+    (click)="confirmarCierre()"
+    (keyup.enter)="confirmarCierre()"
+    tabindex="0"
+    role="button"
+  ></div>
+
+  <!-- Modal Content -->
+  <div
+    class="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden transition-all duration-300 transform scale-100"
+  >
+    <!-- Header -->
+    <div
+      class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary"
+        >
+          <span class="material-icons-round text-xl">{{
+            mode === 'edit'
+              ? 'edit'
+              : mode === 'view'
+                ? 'visibility'
+                : 'add_box'
+          }}</span>
+        </div>
+        <div>
+          <h2
+            class="text-lg font-bold text-slate-900 dark:text-white leading-tight"
+          >
+            {{ getModalTitle() }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            {{
+              mode === 'create'
+                ? 'Complete los detalles del producto'
+                : mode === 'edit'
+                  ? 'Modifique los datos necesarios'
+                  : 'Detalles del registro'
+            }}
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-colors"
+        (click)="confirmarCierre()"
+      >
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 overflow-y-auto custom-scrollbar">
+      <div
+        *ngIf="error"
+        class="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 flex items-start gap-3"
+      >
+        <span class="material-icons-round text-red-500 mt-0.5"
+          >error_outline</span
+        >
+        <div class="text-sm text-red-600 dark:text-red-400">{{ error }}</div>
+      </div>
+
+      <form [formGroup]="productoForm" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Código (solo en edit/view - readonly) -->
+          <div class="col-span-1 md:col-span-2" *ngIf="mode !== 'create'">
+            <label
+              for="codigo"
+              class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+            >
+              Código
+            </label>
+            <input
+              id="codigo"
+              formControlName="codigo"
+              type="text"
+              class="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-500 cursor-not-allowed"
+              readonly
+            />
+          </div>
+
+          <!-- Nombre -->
+          <div [class.md:col-span-2]="mode === 'create'" class="col-span-1">
+            <label
+              for="nombre"
+              class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+            >
+              Nombre <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="nombre"
+              formControlName="nombre"
+              type="text"
+              class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:bg-slate-100 disabled:text-slate-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-500"
+              [class.border-red-500]="
+                productoForm.get('nombre')?.invalid &&
+                productoForm.get('nombre')?.touched
+              "
+              placeholder="Nombre del producto"
+              [readonly]="mode === 'view'"
+            />
+            <div
+              *ngIf="
+                productoForm.get('nombre')?.invalid &&
+                productoForm.get('nombre')?.touched
+              "
+              class="mt-1 text-xs text-red-500"
+            >
+              <span *ngIf="productoForm.get('nombre')?.errors?.['required']"
+                >El nombre es requerido</span
+              >
+              <span *ngIf="productoForm.get('nombre')?.errors?.['maxlength']"
+                >Máximo 150 caracteres</span
+              >
+            </div>
+          </div>
+
+          <!-- Subcategoría (Dropdown) -->
+          <div class="col-span-1">
+            <label
+              for="subcategoriaId"
+              class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+            >
+              Subcategoría <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <select
+                id="subcategoriaId"
+                formControlName="subcategoriaId"
+                class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:bg-slate-100 disabled:text-slate-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 appearance-none"
+                [class.border-red-500]="
+                  productoForm.get('subcategoriaId')?.invalid &&
+                  productoForm.get('subcategoriaId')?.touched
+                "
+              >
+                <option [ngValue]="null" class="dark:bg-slate-900">
+                  Seleccionar subcategoría
+                </option>
+                <option
+                  *ngFor="let sub of subcategorias"
+                  [ngValue]="sub.subcategoriaId"
+                  class="dark:bg-slate-900"
+                >
+                  {{ sub.nombre }}
+                </option>
+              </select>
+              <div
+                class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"
+              >
+                <span class="material-icons-round text-slate-400"
+                  >expand_more</span
+                >
+              </div>
+            </div>
+            <div
+              *ngIf="
+                productoForm.get('subcategoriaId')?.invalid &&
+                productoForm.get('subcategoriaId')?.touched
+              "
+              class="mt-1 text-xs text-red-500"
+            >
+              La subcategoría es requerida
+            </div>
+          </div>
+
+          <!-- Precio Unitario -->
+          <div class="col-span-1">
+            <label
+              for="precioUnitario"
+              class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+            >
+              Precio Unitario <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <span
+                class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold"
+                >$</span
+              >
+              <input
+                id="precioUnitario"
+                formControlName="precioUnitario"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full pl-8 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:bg-slate-100 disabled:text-slate-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-500"
+                [class.border-red-500]="
+                  productoForm.get('precioUnitario')?.invalid &&
+                  productoForm.get('precioUnitario')?.touched
+                "
+                placeholder="0.00"
+                [readonly]="mode === 'view'"
+              />
+            </div>
+            <div
+              *ngIf="
+                productoForm.get('precioUnitario')?.invalid &&
+                productoForm.get('precioUnitario')?.touched
+              "
+              class="mt-1 text-xs text-red-500"
+            >
+              <span
+                *ngIf="productoForm.get('precioUnitario')?.errors?.['required']"
+                >El precio es requerido</span
+              >
+              <span *ngIf="productoForm.get('precioUnitario')?.errors?.['min']"
+                >Debe ser mayor o igual a 0</span
+              >
+            </div>
+          </div>
+
+          <!-- Estado (solo en edición) -->
+          <div class="col-span-1" *ngIf="mode === 'edit'">
+            <label
+              for="estado"
+              class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+              id="estadoLabel"
+            >
+              Estado
+            </label>
+            <div class="flex items-center h-[42px]">
+              <!-- Height to match other inputs -->
+              <label
+                class="relative inline-flex items-center cursor-pointer group"
+                for="estado"
+              >
+                <input
+                  id="estado"
+                  type="checkbox"
+                  formControlName="estado"
+                  class="sr-only peer"
+                  aria-labelledby="estadoLabel"
+                />
+                <div
+                  class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/20 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
+                ></div>
+                <span
+                  class="ms-3 text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors"
+                >
+                  {{
+                    productoForm.get('estado')?.value ? 'Activo' : 'Inactivo'
+                  }}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Descripción (col-span-2) -->
+          <div class="col-span-1 md:col-span-2">
+            <label
+              for="descripcion"
+              class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+            >
+              Descripción
+            </label>
+            <textarea
+              id="descripcion"
+              formControlName="descripcion"
+              class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:bg-slate-100 disabled:text-slate-500 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 resize-none"
+              rows="3"
+              placeholder="Descripción del producto (opcional)"
+              [readonly]="mode === 'view'"
+            ></textarea>
+            <div
+              *ngIf="
+                productoForm.get('descripcion')?.invalid &&
+                productoForm.get('descripcion')?.touched
+              "
+              class="mt-1 text-xs text-red-500"
+            >
+              <span
+                *ngIf="productoForm.get('descripcion')?.errors?.['maxlength']"
+                >Máximo 500 caracteres</span
+              >
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-end gap-3"
+    >
+      <button
+        type="button"
+        class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+        (click)="mode === 'view' ? cerrarModal() : confirmarCierre()"
+      >
+        {{ mode === 'view' ? 'Cerrar' : 'Cancelar' }}
+      </button>
+      <button
+        *ngIf="mode !== 'view' && canSubmitByPermission()"
+        type="submit"
+        class="px-6 py-2 text-sm font-medium text-white bg-primary hover:bg-blue-700 rounded-lg shadow-lg shadow-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="loading || productoForm.invalid"
+        (click)="guardarProducto()"
+      >
+        <span
+          *ngIf="loading"
+          class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"
+        ></span>
+        {{ loading ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Dialog -->
+<div
+  class="fixed inset-0 z-[110] flex items-center justify-center p-4 modal-overlay bg-black/50 backdrop-blur-sm"
+  *ngIf="showConfirmation"
+>
+  <div
+    class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-200 dark:border-slate-800 animate-[fadeIn_0.2s_ease-out]"
+  >
+    <div class="text-center mb-6">
+      <span class="material-icons-round text-5xl text-amber-500 mb-4"
+        >warning_amber</span
+      >
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">
+        ¿Descartar cambios?
+      </h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Hay cambios sin guardar. Si cierra ahora, se perderán.
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <button
+        type="button"
+        class="flex-1 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+        (click)="cancelarConfirmacion()"
+      >
+        Continuar Editando
+      </button>
+      <button
+        type="button"
+        class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors shadow-lg shadow-red-500/30"
+        (click)="confirmarAccion()"
+      >
+        Descartar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Dialog -->
+<div
+  class="fixed inset-0 z-[110] flex items-center justify-center p-4 modal-overlay bg-black/50 backdrop-blur-sm"
+  *ngIf="showSuccess"
+>
+  <div
+    class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800 animate-[fadeIn_0.2s_ease-out]"
+  >
+    <div class="text-center">
+      <div
+        class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4"
+      >
+        <span class="material-icons-round text-4xl text-green-500"
+          >check_circle</span
+        >
+      </div>
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">
+        ¡Operación Exitosa!
+      </h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        El producto ha sido guardado correctamente.
+      </p>
+    </div>
+  </div>
+</div>

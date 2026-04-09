@@ -1,0 +1,319 @@
+<!-- Main Modal -->
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-opacity duration-300"
+  *ngIf="show"
+>
+  <!-- Backdrop -->
+  <div
+    class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+    (click)="close()"
+    (keyup.enter)="close()"
+    tabindex="0"
+    role="button"
+  ></div>
+
+  <!-- Modal Content -->
+  <div
+    class="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden transition-all duration-300 transform scale-100"
+  >
+    <!-- Header -->
+    <div
+      class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary"
+        >
+          <span class="material-icons-round text-xl">add_shopping_cart</span>
+        </div>
+        <div>
+          <h2
+            class="text-lg font-bold text-slate-900 dark:text-white leading-tight"
+          >
+            Crear Reorden
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            {{ inventario.producto?.codigo }} ·
+            {{ inventario.producto?.nombre }}
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-colors"
+        (click)="close()"
+      >
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 overflow-y-auto custom-scrollbar space-y-6">
+      <!-- Stats Row -->
+      <div
+        class="grid grid-cols-3 gap-3 p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700"
+      >
+        <div class="text-center">
+          <span
+            class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1"
+            >Stock Actual</span
+          >
+          <span
+            class="text-lg font-bold"
+            [class.text-amber-500]="
+              inventario.cantidad <= inventario.puntoReorden
+            "
+            [class.text-slate-700]="
+              inventario.cantidad > inventario.puntoReorden
+            "
+            [class.dark:text-white]="
+              inventario.cantidad > inventario.puntoReorden
+            "
+          >
+            {{ inventario.cantidad }}
+          </span>
+        </div>
+        <div
+          class="text-center border-x border-slate-200 dark:border-slate-600"
+        >
+          <span
+            class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1"
+            >Punto Reorden</span
+          >
+          <span class="text-lg font-bold text-slate-700 dark:text-white">{{
+            inventario.puntoReorden
+          }}</span>
+        </div>
+        <div class="text-center">
+          <span
+            class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1"
+            >Ubicación</span
+          >
+          <span
+            class="text-sm font-bold text-slate-700 dark:text-white truncate px-2"
+            >{{ inventario.ubicacion }}</span
+          >
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+        <!-- Proveedor -->
+        <div class="space-y-1.5">
+          <label
+            for="proveedorId"
+            class="block text-sm font-semibold text-slate-700 dark:text-slate-300"
+          >
+            Proveedor <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <span
+              class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-round text-slate-400 text-lg"
+              >local_shipping</span
+            >
+            <select
+              id="proveedorId"
+              formControlName="proveedorId"
+              class="w-full pl-9 pr-8 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-slate-700 dark:text-slate-200 appearance-none transition-all cursor-pointer"
+            >
+              <option [ngValue]="null">Seleccione un proveedor...</option>
+              <option *ngFor="let p of proveedores" [ngValue]="p.proveedor_id">
+                {{ p.nombre }} ({{ p.contacto || '—' }})
+              </option>
+            </select>
+            <span
+              class="absolute right-3 top-1/2 -translate-y-1/2 material-icons-round text-slate-400 pointer-events-none"
+              >expand_more</span
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Cantidad -->
+          <div class="space-y-1.5">
+            <label
+              for="cantidad"
+              class="block text-sm font-semibold text-slate-700 dark:text-slate-300"
+            >
+              Cantidad a pedir <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <span
+                class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-round text-slate-400 text-lg"
+                >add_box</span
+              >
+              <input
+                id="cantidad"
+                type="number"
+                min="1"
+                formControlName="cantidad"
+                class="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-slate-700 dark:text-slate-200 placeholder-slate-400 transition-all"
+              />
+            </div>
+          </div>
+
+          <!-- Precio Unitario -->
+          <div class="space-y-1.5">
+            <label
+              for="precioUnitario"
+              class="block text-sm font-semibold text-slate-700 dark:text-slate-300"
+            >
+              Precio Unitario
+            </label>
+            <div class="relative">
+              <span
+                class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-round text-slate-400 text-lg"
+                >attach_money</span
+              >
+              <input
+                id="precioUnitario"
+                type="number"
+                [value]="precioUnitario"
+                readonly
+                class="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Row -->
+        <div
+          class="flex items-center justify-between p-4 bg-primary/5 dark:bg-blue-900/10 rounded-xl border border-primary/10 dark:border-blue-500/20"
+        >
+          <span class="text-sm font-semibold text-blue-700 dark:text-blue-300"
+            >Total Estimado</span
+          >
+          <span class="text-xl font-bold text-primary dark:text-blue-400">
+            {{
+              (form.value.cantidad || 0) * precioUnitario
+                | currency: 'USD' : 'symbol' : '1.0-0'
+            }}
+          </span>
+        </div>
+
+        <div
+          *ngIf="error"
+          class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 flex items-center gap-2"
+        >
+          <span class="material-icons-round text-red-500 text-sm"
+            >error_outline</span
+          >
+          <span class="text-xs text-red-600 dark:text-red-400 font-medium">{{
+            error
+          }}</span>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+    >
+      <button
+        type="button"
+        class="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+        (click)="close()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-lg shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+        [disabled]="form.invalid || loading"
+        (click)="onSubmit()"
+      >
+        <span
+          *ngIf="loading"
+          class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+        ></span>
+        Crear Reorden
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div
+  class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6"
+  *ngIf="showConfirm"
+>
+  <div
+    class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+    (click)="cancelConfirm()"
+  ></div>
+  <div
+    class="relative w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-scale-in"
+  >
+    <div class="p-6">
+      <div class="text-center mb-6">
+        <div
+          class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4"
+        >
+          <span class="material-icons-round text-3xl"
+            >assignment_turned_in</span
+          >
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">
+          Confirmar Reorden
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Verifique los detalles antes de continuar
+        </p>
+      </div>
+
+      <div
+        class="space-y-3 mb-6 bg-slate-50 dark:bg-slate-700/30 p-4 rounded-xl border border-slate-100 dark:border-slate-700"
+      >
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-slate-500 dark:text-slate-400">Proveedor</span>
+          <span
+            class="font-bold text-slate-900 dark:text-white truncate max-w-[150px]"
+            >{{ selectedProveedor?.nombre }}</span
+          >
+        </div>
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-slate-500 dark:text-slate-400">Cantidad</span>
+          <span class="font-bold text-slate-900 dark:text-white"
+            >{{ form.value.cantidad }} un.</span
+          >
+        </div>
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-slate-500 dark:text-slate-400">Precio Unit.</span>
+          <span class="font-bold text-slate-900 dark:text-white">{{
+            precioUnitario | currency: 'USD' : 'symbol' : '1.0-0'
+          }}</span>
+        </div>
+        <div
+          class="pt-3 border-t border-slate-200 dark:border-slate-600 flex justify-between items-center"
+        >
+          <span class="font-bold text-slate-700 dark:text-slate-300"
+            >Total</span
+          >
+          <span class="font-bold text-primary dark:text-blue-400 text-lg">
+            {{
+              (form.value.cantidad || 0) * precioUnitario
+                | currency: 'USD' : 'symbol' : '1.0-0'
+            }}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          type="button"
+          class="flex-1 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors"
+          (click)="cancelConfirm()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="flex-1 py-2.5 text-sm font-bold text-white bg-primary hover:bg-blue-700 rounded-xl transition-colors shadow-sm"
+          (click)="confirmReorden()"
+        >
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,234 @@
+<div
+  *ngIf="show"
+  class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity"
+  (click)="onCancel()"
+  (keyup.enter)="onCancel()"
+  tabindex="0"
+  role="button"
+>
+  <!-- Modal Content -->
+  <div
+    class="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-[modalSlideIn_0.3s_ease-out]"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div
+      class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center"
+          [ngClass]="
+            mode === 'entrada'
+              ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+              : 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
+          "
+        >
+          <span class="material-icons-round text-xl">{{
+            mode === 'entrada' ? 'login' : 'logout'
+          }}</span>
+        </div>
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white">
+          {{ title }}
+        </h2>
+      </div>
+      <button
+        class="p-2 text-slate-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
+        (click)="onCancel()"
+      >
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 space-y-6">
+      <!-- Info Grid -->
+      <div *ngIf="producto" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- ID -->
+        <div class="space-y-1">
+          <label
+            for="productoId"
+            class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+            >ID</label
+          >
+          <div
+            class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm"
+          >
+            {{ producto.productoId }}
+          </div>
+        </div>
+        <!-- Producto -->
+        <div class="space-y-1">
+          <label
+            class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+            for="producto">Producto</label
+          >
+          <div
+            class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm truncate"
+            title="{{ producto.nombre }}"
+          >
+            {{ producto.nombre }}
+          </div>
+        </div>
+        <!-- Categoría -->
+        <div class="space-y-1">
+          <label
+            class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+            for="categoria">Categoría</label
+          >
+          <div
+            class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm"
+          >
+            {{ producto.subcategoria?.categoriaNombre || '---' }}
+          </div>
+        </div>
+        <!-- Sub-Categoría -->
+        <div class="space-y-1">
+          <label
+            class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+            for="subcategoria">Sub-Categoría</label
+          >
+          <div
+            class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm"
+          >
+            {{ producto.subcategoria?.nombre || producto.subcategoriaId }}
+          </div>
+        </div>
+      </div>
+
+      <hr class="border-slate-100 dark:border-slate-700" />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Proveedor (Entrada) -->
+        <div *ngIf="mode === 'entrada'" class="space-y-1.5 md:col-span-2">
+          <label
+            for="proveedor"
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+            >Proveedor</label
+          >
+          <div class="relative">
+            <span
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-icons-round text-[20px]"
+              >local_shipping</span
+            >
+            <select
+              id="proveedor"
+              [(ngModel)]="selectedProveedorId"
+              class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-700 dark:text-slate-200 transition-all appearance-none"
+            >
+              <option class="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200" [ngValue]="undefined">-- Seleccione --</option>
+              <option
+                class="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200"
+                *ngFor="let prov of proveedores"
+                [ngValue]="prov.proveedorId"
+              >
+                {{ prov.nombre }}
+              </option>
+            </select>
+            <span
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 material-icons-round pointer-events-none"
+              >expand_more</span
+            >
+          </div>
+        </div>
+
+        <!-- Cliente (Salida) -->
+        <div *ngIf="mode === 'salida'" class="space-y-1.5 md:col-span-2">
+          <label
+            for="cliente"
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+            >Cliente</label
+          >
+          <div class="relative">
+            <span
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-icons-round text-[20px]"
+              >person</span
+            >
+            <select
+              id="cliente"
+              [(ngModel)]="selectedClienteId"
+              class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-700 dark:text-slate-200 transition-all appearance-none"
+            >
+              <option class="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200" [ngValue]="undefined">-- Seleccione --</option>
+              <option class="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200" *ngFor="let cli of clientes" [ngValue]="cli.clienteId">
+                {{ cli.nombre }}
+              </option>
+            </select>
+            <span
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 material-icons-round pointer-events-none"
+              >expand_more</span
+            >
+          </div>
+        </div>
+
+        <!-- Lote -->
+        <div class="space-y-1.5">
+          <label
+            for="lote"
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+            >Lote (Opcional)</label
+          >
+          <div class="relative">
+            <span
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-icons-round text-[20px]"
+              >qr_code</span
+            >
+            <input
+              id="lote"
+              type="text"
+              [(ngModel)]="lote"
+              placeholder="Ej: LOTE-001"
+              class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-700 dark:text-slate-200 transition-all placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+
+        <!-- Cantidad -->
+        <div class="space-y-1.5">
+          <label
+            for="cantidad"
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+            >Cantidad</label
+          >
+          <div class="relative">
+            <span
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-icons-round text-[20px]"
+              >numbers</span
+            >
+            <input
+              id="cantidad"
+              type="number"
+              [(ngModel)]="cantidad"
+              min="1"
+              class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-700 dark:text-slate-200 transition-all placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="px-6 py-4 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3"
+    >
+      <button
+        (click)="onCancel()"
+        class="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
+      >
+        Cancelar
+      </button>
+      <button
+        (click)="onConfirm()"
+        class="px-5 py-2.5 text-sm font-medium text-white rounded-xl shadow-lg transition-all flex items-center gap-2"
+        [ngClass]="
+          mode === 'entrada'
+            ? 'bg-green-600 hover:bg-green-700 shadow-green-600/20'
+            : 'bg-orange-600 hover:bg-orange-700 shadow-orange-600/20'
+        "
+      >
+        <span class="material-icons-round text-lg">check_circle</span>
+        Confirmar {{ mode === 'entrada' ? 'Entrada' : 'Salida' }}
+      </button>
+    </div>
+  </div>
+</div>

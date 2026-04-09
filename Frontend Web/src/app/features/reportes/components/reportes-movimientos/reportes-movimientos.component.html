@@ -1,0 +1,668 @@
+<app-sidebar></app-sidebar>
+
+<!-- Main Content -->
+<main
+  class="ml-0 pb-[70px] md:ml-[90px] md:pb-0 flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300"
+>
+  <!-- Header -->
+  <header
+    class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 md:px-8 py-4 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:justify-between"
+  >
+    <!-- Search Bar -->
+    <div class="flex items-center gap-4 w-full md:flex-1 md:max-w-xl">
+      <div class="relative w-full">
+        <span
+          class="material-icons-round absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          >search</span
+        >
+        <input
+          class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary/50 text-sm transition-all outline-none text-slate-600 dark:text-slate-200 placeholder-slate-400"
+          placeholder="Buscar movimientos..."
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="aplicarFiltros()"
+          aria-label="Buscar movimientos"
+        />
+      </div>
+
+      <!-- Type Filter -->
+      <div class="relative z-30">
+        <button
+          class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all shadow-sm h-[42px]"
+          (click)="toggleFilterMenu()"
+          title="Filtrar por tipo"
+        >
+          <span class="material-icons-round text-slate-400">filter_list</span>
+          <span class="material-icons-round text-slate-400 text-lg transition-transform duration-200"
+            [class.rotate-180]="showFilterMenu">expand_more</span>
+        </button>
+
+        <!-- Popup Menu -->
+        <div
+          *ngIf="showFilterMenu"
+          class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden animate-[fadeInDown_0.2s_ease-out] origin-top-right z-50"
+        >
+          <div class="p-3">
+            <div class="space-y-1">
+              <button
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                [ngClass]="{
+                  'bg-slate-50 text-slate-900 dark:text-white dark:bg-slate-700': selectedTipo === 'all',
+                  'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50': selectedTipo !== 'all'
+                }"
+                (click)="filtrarPorTipo('all'); showFilterMenu = false"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="material-icons-round text-lg text-slate-400">format_list_bulleted</span>
+                  <span>Todos</span>
+                </div>
+                <span *ngIf="selectedTipo === 'all'" class="material-icons-round text-primary text-lg">check</span>
+              </button>
+
+              <button
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                [ngClass]="{
+                  'bg-green-50 text-green-700 dark:text-green-400 dark:bg-green-900/20': selectedTipo === 'entrada',
+                  'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50': selectedTipo !== 'entrada'
+                }"
+                (click)="filtrarPorTipo('entrada'); showFilterMenu = false"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="material-icons-round text-lg" [class.text-green-500]="selectedTipo === 'entrada'" [class.text-slate-400]="selectedTipo !== 'entrada'">login</span>
+                  <span>Entradas</span>
+                </div>
+                <span *ngIf="selectedTipo === 'entrada'" class="material-icons-round text-green-500 text-lg">check</span>
+              </button>
+
+              <button
+                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                [ngClass]="{
+                  'bg-amber-50 text-amber-700 dark:text-amber-400 dark:bg-amber-900/20': selectedTipo === 'salida',
+                  'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50': selectedTipo !== 'salida'
+                }"
+                (click)="filtrarPorTipo('salida'); showFilterMenu = false"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="material-icons-round text-lg" [class.text-amber-500]="selectedTipo === 'salida'" [class.text-slate-400]="selectedTipo !== 'salida'">logout</span>
+                  <span>Salidas</span>
+                </div>
+                <span *ngIf="selectedTipo === 'salida'" class="material-icons-round text-amber-500 text-lg">check</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlay to close menu -->
+      <div *ngIf="showFilterMenu" class="fixed inset-0 z-20" (click)="showFilterMenu = false"></div>
+    </div>
+
+    <!-- Actions & Filters -->
+    <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+
+
+      <!-- Date Filters -->
+      <div class="flex items-center gap-2 w-full md:w-auto">
+        <div
+          class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl px-3 border border-transparent focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all flex-1 md:flex-none"
+        >
+          <input
+            type="date"
+            [(ngModel)]="fechaInicio"
+            (change)="aplicarFiltros()"
+            class="bg-transparent border-none py-2 text-sm text-slate-600 dark:text-slate-200 outline-none w-full min-w-[100px]"
+            aria-label="Fecha inicio"
+          />
+        </div>
+
+        <span class="text-slate-400">-</span>
+
+        <div
+          class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl px-3 border border-transparent focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all flex-1 md:flex-none"
+        >
+          <input
+            type="date"
+            [(ngModel)]="fechaFin"
+            (change)="aplicarFiltros()"
+            class="bg-transparent border-none py-2 text-sm text-slate-600 dark:text-slate-200 outline-none w-full min-w-[100px]"
+            aria-label="Fecha fin"
+          />
+        </div>
+      </div>
+
+      <div
+        class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2 hidden md:block"
+      ></div>
+
+      <!-- Right Actions -->
+      <div
+        class="flex items-center justify-between md:justify-end w-full md:w-auto gap-4"
+      >
+        <!-- Download Button -->
+        <button
+          *ngIf="canDownloadReportes"
+          class="flex flex-1 md:flex-none justify-center items-center gap-2 bg-primary hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-primary/20 h-[42px]"
+          (click)="descargarReporte()"
+        >
+          <span class="material-icons-round text-xl">download</span>
+          <span>Generar Reporte</span>
+        </button>
+
+        <div
+          class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2 hidden md:block"
+        ></div>
+
+        <div class="flex items-center gap-2">
+          <button
+            class="p-2 text-slate-400 hover:text-primary transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
+            (click)="toggleDarkMode()"
+            aria-label="Alternar modo oscuro"
+          >
+            <span class="material-icons-round dark:hidden">dark_mode</span>
+            <span class="material-icons-round hidden dark:block"
+              >light_mode</span
+            >
+          </button>
+
+          <div class="relative">
+            <app-bell-notification
+              feature="inventarios"
+            ></app-bell-notification>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="p-4 md:p-8 flex flex-col flex-1">
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+        Reporte de {{ selectedTipo === 'all' ? 'Movimiento' : selectedTipo | titlecase }}s
+      </h1>
+      <p class="text-slate-500 dark:text-slate-400 text-sm">
+        Consulta el historial de movimientos de inventario.
+      </p>
+    </div>
+
+    <!-- Card Container for Table -->
+    <div
+      class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden flex flex-col flex-1"
+    >
+      <!-- Loading State -->
+      <div
+        *ngIf="isLoading"
+        class="flex justify-center items-center py-20 flex-1"
+      >
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"
+        ></div>
+      </div>
+
+      <!-- Error State -->
+      <div
+        *ngIf="error && !isLoading"
+        class="flex flex-col items-center justify-center py-20 text-red-500 flex-1"
+      >
+        <span class="material-icons-round text-5xl mb-4">error_outline</span>
+        <p class="text-lg">{{ error }}</p>
+      </div>
+
+      <!-- Table Content (Hidden on Mobile) -->
+      <div
+        class="hidden md:block overflow-x-auto flex-1"
+        *ngIf="!isLoading && !error"
+      >
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr
+              class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50"
+            >
+              <th
+                class="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              >
+                ID
+              </th>
+              <th
+                class="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              >
+                Producto
+              </th>
+              <th
+                *ngIf="selectedTipo === 'entrada' || selectedTipo === 'all'"
+                class="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              >
+                Proveedor
+              </th>
+              <th
+                *ngIf="selectedTipo === 'salida' || selectedTipo === 'all'"
+                class="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              >
+                Cliente
+              </th>
+              <th
+                class="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              >
+                Asignado a
+              </th>
+              <th
+                class="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              >
+                Cant.
+              </th>
+              <th
+                class="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              >
+                Lote
+              </th>
+              <th
+                class="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              >
+                Tipo
+              </th>
+              <th
+                class="p-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              >
+                Fecha
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+            <tr
+              *ngFor="let mov of paginatedMovimientos"
+              class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+            >
+              <td
+                class="p-4 text-sm text-slate-600 dark:text-slate-300 font-medium"
+              >
+                #{{ mov.id }}
+              </td>
+              <td
+                class="p-4 text-sm text-slate-900 dark:text-white font-semibold"
+              >
+                {{ mov.productoNombre }}
+              </td>
+              <td
+                *ngIf="selectedTipo === 'entrada' || selectedTipo === 'all'"
+                class="p-4 text-sm text-slate-600 dark:text-slate-300"
+              >
+                {{ mov.proveedor || 'N/A' }}
+              </td>
+              <td
+                *ngIf="selectedTipo === 'salida' || selectedTipo === 'all'"
+                class="p-4 text-sm text-slate-600 dark:text-slate-300"
+              >
+                {{ mov.cliente || 'N/A' }}
+              </td>
+              <td class="p-4 text-sm text-slate-600 dark:text-slate-300">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs text-slate-500 dark:text-slate-400 font-bold"
+                  >
+                    {{ (mov.asignadoA || '?').charAt(0).toUpperCase() }}
+                  </span>
+                  {{ mov.asignadoA || 'N/A' }}
+                </div>
+              </td>
+              <td
+                class="p-4 text-sm text-slate-600 dark:text-slate-300 font-mono"
+              >
+                {{ mov.cantidad }}
+              </td>
+              <td class="p-4 text-sm text-slate-500 dark:text-slate-400">
+                {{ mov.lote || 'N/A' }}
+              </td>
+              <td class="p-4">
+                <span
+                  [class]="
+                    mov.tipo === 'entrada'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                  "
+                  class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide"
+                >
+                  {{ mov.tipo }}
+                </span>
+              </td>
+              <td class="p-4 text-sm text-slate-500 dark:text-slate-400">
+                {{ mov.fecha | date: 'short' }}
+              </td>
+            </tr>
+
+            <!-- No Data -->
+            <tr *ngIf="!isLoading && filteredMovimientos.length === 0">
+              <td colspan="9" class="p-12 text-center text-slate-400">
+                <span
+                  class="material-icons-round text-6xl mb-4 block opacity-50"
+                  >search_off</span
+                >
+                <span class="text-lg">No se encontraron movimientos</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards View (Visible only on Mobile) -->
+      <div
+        class="md:hidden flex flex-col gap-4 p-4 bg-slate-50 dark:bg-slate-900"
+        *ngIf="!isLoading && !error"
+      >
+        <div 
+          *ngFor="let mov of paginatedMovimientos" 
+          class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-3"
+        >
+          <!-- Header: Date & Type -->
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <span class="material-icons-round text-base">calendar_today</span>
+              <span>{{ mov.fecha | date:'mediumDate' }}</span>
+              <span class="text-slate-300 dark:text-slate-600">•</span>
+              <span>{{ mov.fecha | date:'shortTime' }}</span>
+            </div>
+            <span
+              [class]="
+                mov.tipo === 'entrada'
+                  ? 'bg-green-50 text-green-700 border border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30'
+                  : 'bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/30'
+              "
+              class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"
+            >
+              <span class="material-icons-round text-[14px]">{{ mov.tipo === 'entrada' ? 'login' : 'logout' }}</span>
+              {{ mov.tipo }}
+            </span>
+          </div>
+
+          <!-- Product Info -->
+          <div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white leading-tight mb-1">
+              {{ mov.productoNombre }}
+            </h3>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-mono text-slate-500 bg-slate-100 dark:bg-slate-700/50 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                ID: {{ mov.id }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Details Grid -->
+          <div class="grid grid-cols-2 gap-3 mt-1">
+            <!-- Quantity -->
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons-round text-lg">inventory_2</span>
+              </div>
+              <div class="flex flex-col overflow-hidden">
+                <span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider">Cantidad</span>
+                <span class="font-bold text-slate-700 dark:text-slate-200 text-sm">{{ mov.cantidad }}</span>
+              </div>
+            </div>
+
+            <!-- Lote -->
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons-round text-lg">qr_code</span>
+              </div>
+              <div class="flex flex-col overflow-hidden">
+                <span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider">Lote</span>
+                <span class="font-medium text-slate-700 dark:text-slate-200 text-sm truncate" [title]="mov.lote">{{ mov.lote || 'N/A' }}</span>
+              </div>
+            </div>
+
+            <!-- Provider/Client -->
+            <div class="col-span-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700 flex items-center gap-3">
+              <div 
+                class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                [ngClass]="mov.tipo === 'entrada' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'"
+              >
+                <span class="material-icons-round text-lg">{{ mov.tipo === 'entrada' ? 'local_shipping' : 'storefront' }}</span>
+              </div>
+              <div class="flex flex-col overflow-hidden">
+                <span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider">{{ mov.tipo === 'entrada' ? 'Proveedor' : 'Cliente' }}</span>
+                <span class="font-medium text-slate-700 dark:text-slate-200 text-sm truncate">{{ (mov.tipo === 'entrada' ? mov.proveedor : mov.cliente) || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer: User -->
+          <div class="flex items-center justify-between pt-2 mt-1 border-t border-slate-100 dark:border-slate-700/50">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400">Por:</span>
+              <div class="flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                  {{ (mov.asignadoA || '?').charAt(0).toUpperCase() }}
+                </span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">{{ mov.asignadoA || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Data Mobile -->
+        <div
+          *ngIf="!isLoading && filteredMovimientos.length === 0"
+          class="p-8 text-center text-slate-400 flex flex-col items-center justify-center"
+        >
+          <span class="material-icons-round text-5xl mb-2 block opacity-50"
+            >search_off</span
+          >
+          <span>No se encontraron movimientos</span>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <footer
+        *ngIf="filteredMovimientos.length > 0"
+        class="mt-8 px-8 py-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4"
+      >
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          Mostrando {{ (currentPage - 1) * limit + 1 }} -
+          {{ Math.min(currentPage * limit, totalItems) }} de
+          {{ totalItems }} resultados
+        </p>
+
+        <div class="flex gap-2">
+          <button
+            class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="currentPage === 1"
+            (click)="prevPage()"
+            aria-label="Página anterior"
+          >
+            <span class="material-icons-round">chevron_left</span>
+          </button>
+
+          <div class="hidden sm:flex gap-1">
+            <button
+              *ngFor="let page of getPageNumbers()"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              [class]="
+                page === currentPage
+                  ? 'bg-primary text-white'
+                  : 'border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+              "
+              (click)="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+          </div>
+
+          <button
+            class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="currentPage >= totalPages"
+            (click)="nextPage()"
+            aria-label="Página siguiente"
+          >
+            <span class="material-icons-round">chevron_right</span>
+          </button>
+        </div>
+      </footer>
+    </div>
+
+    <section class="mt-8">
+      <div class="mb-4">
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+          Evidencia de reportes
+        </h2>
+        <p class="text-slate-500 dark:text-slate-400 text-sm">
+          Visualización de observaciones e imágenes asociadas a cada reporte.
+        </p>
+      </div>
+
+      <div
+        *ngIf="evidenceLoading"
+        class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-8 flex items-center justify-center"
+      >
+        <div
+          class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"
+        ></div>
+      </div>
+
+      <div
+        *ngIf="evidenceError && !evidenceLoading"
+        class="bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900/50 rounded-2xl shadow-sm p-6 text-red-500"
+      >
+        {{ evidenceError }}
+      </div>
+
+      <div
+        *ngIf="!evidenceLoading && !evidenceError && evidenceReports.length === 0"
+        class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-8 text-center text-slate-400"
+      >
+        No hay reportes con evidencia para mostrar.
+      </div>
+
+      <div
+        *ngIf="!evidenceLoading && !evidenceError && evidenceReports.length > 0"
+        class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+      >
+        <article
+          *ngFor="let report of evidenceReports"
+          class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-5 flex flex-col gap-4"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
+                {{ report.title }}
+              </h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400">
+                {{ report.type }} · {{ report.createdAt | date: 'mediumDate' }}
+              </p>
+            </div>
+            <span
+              class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+              [ngClass]="
+                report.status
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-200'
+              "
+            >
+              {{ report.status ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            {{ report.description || 'Sin descripción general' }}
+          </p>
+
+          <div class="rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 p-4">
+            <p class="text-[11px] uppercase tracking-wider font-bold text-slate-400 mb-2">
+              Observación
+            </p>
+            <p class="text-sm text-slate-600 dark:text-slate-300">
+              {{ report.evidence?.observation || 'Sin observación adjunta' }}
+            </p>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-[11px] uppercase tracking-wider font-bold text-slate-400">
+                Imágenes
+              </p>
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ report.evidence?.imageUrls?.length || 0 }} adjuntas
+              </span>
+            </div>
+
+            <div
+              *ngIf="(report.evidence?.imageUrls?.length || 0) > 0; else noEvidenceImages"
+              class="evidence-gallery-strip flex gap-2 overflow-x-auto pb-2"
+            >
+              <button
+                *ngFor="let imageUrl of report.evidence?.imageUrls; let index = index"
+                type="button"
+                class="evidence-thumb-button rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 overflow-hidden"
+                (click)="openEvidenceViewer(report.evidence?.imageUrls || [], index)"
+              >
+                <img
+                  [src]="imageUrl"
+                  (error)="onEvidenceImageError($event)"
+                  alt="Evidencia del reporte"
+                  class="evidence-thumb object-cover"
+                  loading="lazy"
+                />
+              </button>
+            </div>
+
+            <ng-template #noEvidenceImages>
+              <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-4 text-center text-sm text-slate-400">
+                Este reporte no tiene imágenes cargadas.
+              </div>
+            </ng-template>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div
+  *ngIf="evidenceViewerOpen"
+  class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm"
+  (click)="closeEvidenceViewer()"
+>
+  <div
+    class="relative w-full max-w-5xl flex items-center justify-center"
+    (click)="$event.stopPropagation()"
+  >
+    <button
+      type="button"
+      class="absolute top-0 right-0 z-10 w-11 h-11 rounded-full bg-slate-900/80 text-white flex items-center justify-center border border-slate-700"
+      (click)="closeEvidenceViewer()"
+      aria-label="Cerrar visor"
+    >
+      <span class="material-icons-round">close</span>
+    </button>
+
+    <button
+      *ngIf="evidenceViewerImages.length > 1"
+      type="button"
+      class="absolute left-0 md:-left-14 z-10 w-11 h-11 rounded-full bg-slate-900/80 text-white flex items-center justify-center border border-slate-700"
+      (click)="showPreviousEvidenceImage()"
+      aria-label="Imagen anterior"
+    >
+      <span class="material-icons-round">chevron_left</span>
+    </button>
+
+    <div class="w-full flex flex-col items-center gap-4">
+      <img
+        *ngIf="currentEvidenceViewerImage"
+        [src]="currentEvidenceViewerImage"
+        alt="Evidencia ampliada del reporte"
+        class="lightbox-image rounded-2xl border border-slate-700 bg-slate-950"
+      />
+
+      <div class="text-sm text-slate-200 font-medium">
+        {{ evidenceViewerIndex + 1 }} / {{ evidenceViewerImages.length }}
+      </div>
+    </div>
+
+    <button
+      *ngIf="evidenceViewerImages.length > 1"
+      type="button"
+      class="absolute right-0 md:-right-14 z-10 w-11 h-11 rounded-full bg-slate-900/80 text-white flex items-center justify-center border border-slate-700"
+      (click)="showNextEvidenceImage()"
+      aria-label="Imagen siguiente"
+    >
+      <span class="material-icons-round">chevron_right</span>
+    </button>
+  </div>
+</div>
